@@ -51,6 +51,17 @@ class UserServiceTest {
         }
 
         @Test
+        @DisplayName("최소 충전금액 이하 충전 시도 시 예외발생")
+        void charge_minAmount_shouldThrow() {
+            User user = new User("지민", 0);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+            assertThrows(IllegalArgumentException.class, () -> {
+                userService.charge(1L, 999);
+            });
+        }
+
+        @Test
         @DisplayName("사용자가 존재하지 않으면 예외 발생")
         void charge_userNotFound() {
             when(userRepository.findById(1L)).thenReturn(Optional.empty());

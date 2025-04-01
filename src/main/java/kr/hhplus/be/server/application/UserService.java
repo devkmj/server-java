@@ -16,6 +16,14 @@ public class UserService {
 
     @Transactional
     public void charge(Long userId, Integer amount) {
+        if(amount <= 1000) {
+            throw new IllegalArgumentException("최소 충전금액은 1000원 입니다.");
+        }
+
+        if(!userRepository.existsById(userId)) {
+            throw new IllegalArgumentException("유효하지 않는 사요자입니다.");
+        }
+
         User user = getUser(userId);
         user.charge(amount);
     }
