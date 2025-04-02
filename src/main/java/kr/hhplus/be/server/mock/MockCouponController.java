@@ -2,6 +2,7 @@ package kr.hhplus.be.server.mock;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.hhplus.be.server.common.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,15 +17,14 @@ public class MockCouponController {
 
     @Operation(summary = "선착순 쿠폰 발급(Mock)", description = "사용자 ID를 기반으로 선착순 쿠폰을 발급하는 Mock API입니다.")
     @PostMapping("/issue")
-    public ResponseEntity<String> issueCoupon(@RequestParam Long userId) {
-        // 실제 발급 로직 없이 스텁 메시지 반환
-        return ResponseEntity.ok("✅ MOCK 쿠폰 발급 완료: userId = " + userId);
+    public ResponseEntity<ApiResponse<Long>> issueCoupon(@RequestParam Long userId) {
+        return ResponseEntity.ok(ApiResponse.success("선착순 쿠폰 발급 완료", userId));
     }
 
 
     @Operation(summary = "보유 쿠폰 목록 조회(Mock)", description = "사용자가 보유한 쿠폰 리스트를 조회하는 Mock API입니다.")
     @GetMapping
-    public ResponseEntity<List<Map<String, Object>>> getUserCoupons(@RequestParam Long userId) {
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getUserCoupons(@RequestParam Long userId) {
         List<Map<String, Object>> coupons = List.of(
                 Map.of(
                         "userCouponId", 1,
@@ -44,6 +44,6 @@ public class MockCouponController {
                 )
         );
 
-        return ResponseEntity.ok(coupons);
+        return ResponseEntity.ok(ApiResponse.success(coupons));
     }
 }
