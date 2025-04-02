@@ -18,4 +18,11 @@ public class MockUserController {
     ) {
         return ResponseEntity.ok("MOCK 충전 완료 : userId = " + userId + ", amount =" +amount);
     }
+
+    @Operation(summary = "잔액 조회(Mock)", description = "사용자 잔액을 조회하는 Mock API 입니다.")
+    @GetMapping("/{userId}/balance")
+    public ResponseEntity<Integer> mockBalance(@PathVariable Long userId) {
+        int mockBalance = 45000;
+        return ResponseEntity.ok(mockBalance);
+    }
 }
