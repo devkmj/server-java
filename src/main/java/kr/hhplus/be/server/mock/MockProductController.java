@@ -24,4 +24,16 @@ public class MockProductController {
 
         return ResponseEntity.ok(popularProducts);
     }
+
+    @Operation(summary = "상품 목록 조회 (Mock)", description = "모든 상품 목록을 Mock 데이터로 조회.")
+    @GetMapping("/products")
+    public ResponseEntity<List<Map<String, Object>>> getAllProducts() {
+        List<Map<String, Object>> prooducts = List.of(
+                Map.of("id", 1, "name", "아이폰 15", "price", 978000, "stock", 20),
+                Map.of("id", 2, "name", "갤럭시 S25", "price", 780000, "stock", 10),
+                Map.of("id", 3, "name", "애플워치 SE", "price", 345000, "stock", 190)
+        );
+
+        return ResponseEntity.ok(prooducts);
+    }
 }
