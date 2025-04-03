@@ -48,6 +48,9 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
 	implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+
+	// Database for test
+	testImplementation("com.h2database:h2")
 }
 
 tasks.withType<Test> {
