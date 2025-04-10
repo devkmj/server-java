@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.List;
 
+import static kr.hhplus.be.server.testutil.TestMessages.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
@@ -40,7 +41,7 @@ public class ProductServiceTest {
         // when & then
         assertThatThrownBy(() -> productService.findById(invalidProductId))
                 .isInstanceOf(ProductNotFoundException.class)
-                .hasMessage("상품을 찾을 수 없습니다.");
+                .hasMessage(NOT_FOUND_PRODUCT);
     }
 
     @Test
@@ -50,7 +51,7 @@ public class ProductServiceTest {
         //when & then
         assertThatThrownBy(() -> new Product("테스트 상품",0, ProductStatus.AVAILABLE))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("상품 가격은 0보다 커야 합니다");
+                .hasMessageContaining(INVALID_PRICE);
 
     }
 
@@ -125,11 +126,11 @@ public class ProductServiceTest {
     void 상품_이름이_null_또는_공백이면_예외() {
         assertThatThrownBy(() -> new Product(null, 0, ProductStatus.AVAILABLE))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("상품 이름은 필수입니다");
+                .hasMessageContaining(REQUIRED_NAME);
 
         assertThatThrownBy(() -> new Product(" ", 1000, ProductStatus.ON_SALE))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("상품 이름은 필수입니다");
+                .hasMessageContaining(REQUIRED_NAME);
     }
 
     @Test
@@ -137,7 +138,7 @@ public class ProductServiceTest {
     void 상품_상태가_null이면_예외() {
         assertThatThrownBy(() -> new Product("상품", 1000, null))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("상품 상태는 필수입니다");
+                .hasMessageContaining(REQUIRED_STATUS);
     }
 
     @Test
