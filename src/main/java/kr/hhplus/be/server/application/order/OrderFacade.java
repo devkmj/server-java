@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.application.order;
 
+import kr.hhplus.be.server.domain.order.OrderValidator;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
 import kr.hhplus.be.server.domain.product.ProductStock;
@@ -29,6 +30,7 @@ public class OrderFacade {
     private final UserRepository userRepository;
     private final UserCouponRepository userCouponRepository;
     private final BalanceRepository balanceRepository;
+    private final OrderValidator orderValidator;
 
     public OrderFacade(
             ProductRepository productRepository,
@@ -36,7 +38,8 @@ public class OrderFacade {
             OrderRepository orderRepository,
             UserRepository userRepository,
             UserCouponRepository userCouponRepository,
-            BalanceRepository balanceRepository
+            BalanceRepository balanceRepository,
+            OrderValidator orderValidator
     ) {
         this.productRepository = productRepository;
         this.productStockRepository = productStockRepository;
@@ -44,6 +47,7 @@ public class OrderFacade {
         this.userRepository = userRepository;
         this.userCouponRepository = userCouponRepository;
         this.balanceRepository = balanceRepository;
+        this.orderValidator = orderValidator;
     }
 
     @Transactional
@@ -67,7 +71,7 @@ public class OrderFacade {
         }
 
         // 검증
-        validateOrder(product, stock, balance, userCoupon, qty, totalPrice);
+        orderValidator.validate(product, stock, balance, userCoupon, qty, totalPrice);
 
         // 상태 변경 (차감)
         balance.use(totalPrice);
@@ -80,26 +84,4 @@ public class OrderFacade {
         orderRepository.save(order);
     }
 
-    private void validateOrder(Product product, ProductStock stock, Balance balance, UserCoupon userCoupon, int qty, int totalPrice) {
-        if (product.getStatus() != ProductStatus.AVAILABLE && product.getStatus() != ProductStatus.ON_SALE) {
-            throw new IllegalArgumentException("판매중인 상품이 아닙니다.");
-        }
-
-        if (!stock.hasEnough(qty)) {
-            throw new InsufficientStockException("상품 재고가 부족합니다.");
-        }
-
-        if (userCoupon != null) {
-            if (userCoupon.isUsed()) {
-                throw new IllegalArgumentException("이미 사용된 쿠폰입니다.");
-            }
-            if (!userCoupon.getCoupon().isValidNow()) {
-                throw new IllegalArgumentException("유효하지 않은 쿠폰입니다.");
-            }
-        }
-
-        if (balance.getBalance() < totalPrice) {
-            throw new InsufficientBalanceException("잔액이 부족합니다");
-        }
-    }
 }

@@ -6,6 +6,7 @@ import kr.hhplus.be.server.domain.balance.BalanceRepository;
 import kr.hhplus.be.server.domain.coupon.Coupon;
 import kr.hhplus.be.server.domain.order.OrderRepository;
 import kr.hhplus.be.server.domain.order.OrderStatus;
+import kr.hhplus.be.server.domain.order.OrderValidator;
 import kr.hhplus.be.server.domain.order.exception.InsufficientBalanceException;
 import kr.hhplus.be.server.domain.order.exception.InsufficientStockException;
 import kr.hhplus.be.server.domain.product.*;
@@ -14,6 +15,7 @@ import kr.hhplus.be.server.domain.user.UserCoupon;
 import kr.hhplus.be.server.domain.user.UserCouponRepository;
 import kr.hhplus.be.server.domain.user.UserRepository;
 import org.apache.logging.log4j.message.LoggerNameAwareMessage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -35,6 +37,7 @@ import static org.mockito.BDDMockito.*;
 @ExtendWith(MockitoExtension.class)
 public class OrderFacadeTest {
 
+    @Mock private OrderValidator orderValidator;
     @Mock private ProductRepository productRepository;
     @Mock private ProductStockRepository productStockRepository;
     @Mock private BalanceRepository balanceRepository;
@@ -44,6 +47,21 @@ public class OrderFacadeTest {
 
     @InjectMocks
     private OrderFacade orderFacade;
+
+    @BeforeEach
+    void setUp() {
+        orderValidator = new OrderValidator();
+
+        orderFacade = new OrderFacade(
+                productRepository,
+                productStockRepository,
+                orderRepository,
+                userRepository,
+                userCouponRepository,
+                balanceRepository,
+                orderValidator
+        );
+    }
 
     @Test
     void 정상_주문_성공() {
