@@ -1,49 +1,60 @@
 package kr.hhplus.be.server.application.order;
 
-import jakarta.persistence.*;
+import kr.hhplus.be.server.application.coupon.CouponService;
+import kr.hhplus.be.server.application.order.dto.OrderItemCommand;
+import kr.hhplus.be.server.application.order.dto.OrderSummary;
+import kr.hhplus.be.server.application.product.ProductStockService;
+import kr.hhplus.be.server.application.balance.BalanceService;
+import kr.hhplus.be.server.application.order.dto.OrderCommand;
+import kr.hhplus.be.server.application.product.ProductService;
+import kr.hhplus.be.server.application.user.UserCouponService;
+import kr.hhplus.be.server.application.user.UserService;
 import kr.hhplus.be.server.domain.balance.Balance;
-import kr.hhplus.be.server.domain.balance.BalanceRepository;
 import kr.hhplus.be.server.domain.coupon.Coupon;
-import kr.hhplus.be.server.domain.order.OrderRepository;
-import kr.hhplus.be.server.domain.order.OrderStatus;
+import kr.hhplus.be.server.domain.order.Order;
+import kr.hhplus.be.server.domain.order.OrderItem;
+import kr.hhplus.be.server.domain.order.OrderValidator;
 import kr.hhplus.be.server.domain.order.exception.InsufficientBalanceException;
 import kr.hhplus.be.server.domain.order.exception.InsufficientStockException;
 import kr.hhplus.be.server.domain.product.*;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserCoupon;
-import kr.hhplus.be.server.domain.user.UserCouponRepository;
-import kr.hhplus.be.server.domain.user.UserRepository;
-import org.apache.logging.log4j.message.LoggerNameAwareMessage;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.annotation.Id;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.*;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.*;
 
 @DisplayName("Order 도메인 단위 테스트")
 @ExtendWith(MockitoExtension.class)
 public class OrderFacadeTest {
 
-    @Mock private ProductRepository productRepository;
-    @Mock private ProductStockRepository productStockRepository;
-    @Mock private BalanceRepository balanceRepository;
-    @Mock private UserRepository userRepository;
-    @Mock private UserCouponRepository userCouponRepository;
-    @Mock private OrderRepository orderRepository;
-
     @InjectMocks
     private OrderFacade orderFacade;
+
+    @Mock private OrderCalculationService orderCalculationService;
+    @Mock private UserService userService;
+    @Mock private ProductService productService;
+    @Mock private ProductStockService productStockService;
+    @Mock private BalanceService balanceService;
+    @Mock private UserCouponService userCouponService;
+    @Mock private OrderService orderService;
+    @Mock private CouponService couponService;
+    @Mock private OrderItemService orderItemService;
+
+
 
     @Test
     void 정상_주문_성공() {
@@ -51,42 +62,65 @@ public class OrderFacadeTest {
         Long userId = 1L;
         Long productId = 1L;
         int qty = 1;
+
         Product product = new Product("테스트상품", 10000, ProductStatus.ON_SALE);
         ProductStock stock = new ProductStock(product, 10);
         Balance balance = new Balance(userId, 100000);
         User user = new User("테스트유저");
+        OrderItem orderItem = new OrderItem(product, qty, product.getPrice());
+        OrderSummary summary = new OrderSummary(List.of(orderItem), product.getPrice() * qty);
 
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(productRepository.findById(productId)).willReturn(Optional.of(product));
-        given(productStockRepository.findByProductId(productId)).willReturn(Optional.of(stock));
-        given(balanceRepository.findByUserId(userId)).willReturn(Optional.of(balance));
+        given(userService.findByUserId(userId)).willReturn(user);
+        given(balanceService.findByUserId(userId)).willReturn(balance);
+        given(orderCalculationService.calculateOrderItems(anyList(), eq(balance))).willReturn(summary);
+
+        // OrderCommand 생성 시 주문 아이템 리스트 전달
+        OrderCommand command = OrderCommand.of(
+                userId,
+                List.of(new OrderItemCommand(productId, qty)),
+                qty,
+                null);
 
         // when & then
-        assertThatCode(() -> orderFacade.order(userId, productId, qty, null))
+        assertThatCode(() -> orderFacade.order(command))
                 .doesNotThrowAnyException();
     }
 
     @Test
-    @DisplayName("재고 부족 시 예외가 발생한다")
-    void 재고_부족_시_예외가_발생한다(){
+    void 재고가_부족하면_예외가_발생한다() {
         // given
         Long userId = 1L;
-        Long productId = 1L;
-        int qty = 3;
-        Product product = new Product("맥북", 30000, ProductStatus.AVAILABLE);
-        ProductStock stock = new ProductStock(product, 1); // 부족한 재고
-        Balance balance = new Balance(userId, 500000);
-        User user = new User("테스트유저");
+        Long productId = 100L;
+        int qty = 5;
+        int productPrice = 2000;
 
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(productRepository.findById(productId)).willReturn(Optional.of(product));
-        given(productStockRepository.findByProductId(productId)).willReturn(Optional.of(stock));
-        given(balanceRepository.findByUserId(userId)).willReturn(Optional.of(balance));
+        OrderItemCommand item = new OrderItemCommand(productId, qty);
+        OrderCommand command = new OrderCommand(userId, List.of(item), null); // userCouponIds 생략 가능
+
+        User mockUser = new User(userId, "사용자");
+        Balance mockBalance = new Balance(userId, 10000);
+
+        Product mockProduct = new Product("상품", productPrice, ProductStatus.AVAILABLE); // 재고 10 가정
+        OrderItem orderItem = new OrderItem(mockProduct, qty, productPrice);
+        OrderSummary summary = new OrderSummary(List.of(orderItem), orderItem.getTotalPrice());
+
+        when(userService.findByUserId(userId)).thenReturn(mockUser);
+        when(balanceService.findByUserId(userId)).thenReturn(mockBalance);
+        when(orderCalculationService.calculateOrderItems(anyList(), any())).thenReturn(summary);
+        when(couponService.applyCoupons(anyList(), anyInt())).thenReturn(orderItem.getTotalPrice());
+
+        // 상품 재고 감소 시 예외 발생
+        doThrow(new InsufficientStockException("재고가 부족합니다"))
+                .when(productStockService)
+                .decreaseProductStocks(List.of(item));
 
         // when & then
-        assertThatThrownBy(() -> orderFacade.order(userId, productId, qty, null))
-                .isInstanceOf(InsufficientStockException.class)
-                .hasMessageContaining("상품 재고가 부족합니다");
+        InsufficientStockException exception = assertThrows(
+                InsufficientStockException.class,
+                () -> orderFacade.order(command)
+        );
+
+        assertEquals("재고가 부족합니다", exception.getMessage());
     }
 
     @Test
@@ -95,54 +129,65 @@ public class OrderFacadeTest {
         // given
         Long userId = 1L;
         Long productId = 1L;
-        int qty = 1;
-        int price = 10000;
+        int qty = 5;
+        int productPrice = 3000;
+        int totalPrice = productPrice * qty;
 
-        Product product = new Product("맥북", price, ProductStatus.ON_SALE);
-        ProductStock stock = new ProductStock(product, 5);
-        Balance balance = new Balance(userId, 5000); // 부족한 금액
-        User user = new User("테스트유저");
+        OrderItemCommand item = new OrderItemCommand(productId, qty);
+        OrderCommand command = new OrderCommand(userId, List.of(item), null);
 
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(productRepository.findById(productId)).willReturn(Optional.of(product));
-        given(productStockRepository.findByProductId(productId)).willReturn(Optional.of(stock));
-        given(balanceRepository.findByUserId(userId)).willReturn(Optional.of(balance));
+        Product mockProduct = new Product("상품", productPrice, ProductStatus.AVAILABLE);
+        OrderItem orderItem = new OrderItem(mockProduct, qty, productPrice);
+        OrderSummary summary = new OrderSummary(List.of(orderItem), orderItem.getTotalPrice());
+        Balance mockBalance = new Balance(userId, 1000);
+
+        when(orderCalculationService.calculateOrderItems(anyList(), any())).thenReturn(summary);
+        when(balanceService.findByUserId(userId)).thenReturn(mockBalance);
+
+        doThrow(new IllegalArgumentException("잔액이 부족합니다"))
+                .when(balanceService)
+                .useBalance(eq(mockBalance), anyInt());
 
         // when & then
-        assertThatThrownBy(() -> orderFacade.order(userId, productId, qty, null))
-                .isInstanceOf(InsufficientBalanceException.class)
-                .hasMessageContaining("잔액이 부족합니다");
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> orderFacade.order(command)
+        );
+
+        assertEquals("잔액이 부족합니다", exception.getMessage());
     }
 
     @Test
     @DisplayName("쿠폰이 유효하지 않을 경우 예외가 발생한다")
-    void 쿠폰이_유효하지_않을_경우_예외가_발생한다(){
+    void 쿠폰이_유효하지_않을_경우_예외가_발생한다() {
         // given
         Long userId = 1L;
         Long productId = 1L;
-        int qty = 1;
-        int price = 10000;
-        Long userCouponId = 99L;
+        int qty = 2;
+        int productPrice = 5000;
+        int totalPrice = qty * productPrice;
 
-        Product product = new Product("맥북", price, ProductStatus.ON_SALE);
-        ProductStock stock = new ProductStock(product, 5);
-        Balance balance = new Balance(userId, 500000);
-        User user = new User("테스트유저");
+        OrderItemCommand item = new OrderItemCommand(productId, qty);
+        OrderCommand command = new OrderCommand(userId, List.of(item), List.of(123L)); // 잘못된 쿠폰 ID 포함
 
-        UserCoupon expiredCoupon = new UserCoupon(
-                userCouponId,
-                new Coupon(10, 100, 10, LocalDateTime.now().minusDays(10), LocalDateTime.now().minusDays(1))    // 유효기간 만료됨
+        Product mockProduct = new Product("상품", productPrice, ProductStatus.AVAILABLE);
+        OrderItem orderItem = new OrderItem(mockProduct, qty, productPrice);
+        OrderSummary summary = new OrderSummary(List.of(orderItem), totalPrice);
+
+        when(userService.findByUserId(userId)).thenReturn(new User(userId, "사용자"));
+        when(balanceService.findByUserId(userId)).thenReturn(new Balance(userId, 20000));
+        when(orderCalculationService.calculateOrderItems(anyList(), any())).thenReturn(summary);
+
+        when(couponService.applyCoupons(anyList(), anyInt()))
+                .thenThrow(new IllegalArgumentException("유효하지 않은 쿠폰입니다"));
+
+        // when & then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> orderFacade.order(command)
         );
 
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(productRepository.findById(productId)).willReturn(Optional.of(product));
-        given(productStockRepository.findByProductId(productId)).willReturn(Optional.of(stock));
-        given(balanceRepository.findByUserId(userId)).willReturn(Optional.of(balance));
-        given(userCouponRepository.findById(userCouponId)).willReturn(Optional.of(expiredCoupon));
-
-        assertThatThrownBy(() -> orderFacade.order(userId, productId, qty,  userCouponId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("유효하지 않은 쿠폰입니다");
+        assertEquals("유효하지 않은 쿠폰입니다", exception.getMessage());
     }
 
     @Test
@@ -151,31 +196,34 @@ public class OrderFacadeTest {
         // given
         Long userId = 1L;
         Long productId = 1L;
-        Long userCouponId = 1L;
-        int qty = 1;
+        int qty = 2;
+        int productPrice = 5000;
+        int totalPrice = qty * productPrice;
 
-        Coupon coupon = new Coupon(10, 100, 10,
-                LocalDateTime.now().minusDays(3),
-                LocalDateTime.now().plusDays(7));
-        UserCoupon userCoupon = new UserCoupon(userId, coupon);
-        ReflectionTestUtils.setField(userCoupon, "id", userCouponId);
-        userCoupon.use(); // 사용처리
+        OrderItemCommand item = new OrderItemCommand(productId, qty);
+        OrderCommand command = new OrderCommand(userId, List.of(item), List.of(123L)); // 잘못된 쿠폰 ID 포함
 
-        Product product = new Product("맥북", 320000, ProductStatus.AVAILABLE);
-        ProductStock stock = new ProductStock(product, 5);
-        Balance balance = new Balance(userId, 500000);
-        User user = new User("테스트 유저");
+        Product mockProduct = new Product("상품", productPrice, ProductStatus.AVAILABLE);
+        OrderItem orderItem = new OrderItem(mockProduct, qty, productPrice);
+        OrderSummary summary = new OrderSummary(List.of(orderItem), totalPrice);
+        Coupon coupon = new Coupon(30, 1000, 200, LocalDateTime.now().minusMonths(1) ,LocalDateTime.now().plusDays(1));
+        UserCoupon usedCoupon = new UserCoupon(userId, coupon);
+        usedCoupon.markAsUsed(); // 사용된 상태로 변경
 
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(productRepository.findById(productId)).willReturn(Optional.of(product));
-        given(productStockRepository.findByProductId(productId)).willReturn(Optional.of(stock));
-        given(balanceRepository.findByUserId(userId)).willReturn(Optional.of(balance));
-        given(userCouponRepository.findById(userCouponId)).willReturn(Optional.of(userCoupon));
+        when(userService.findByUserId(userId)).thenReturn(new User(userId, "사용자"));
+        when(balanceService.findByUserId(userId)).thenReturn(new Balance(userId, 20000));
+        when(orderCalculationService.calculateOrderItems(anyList(), any())).thenReturn(summary);
+
+        when(couponService.applyCoupons(anyList(), anyInt()))
+                .thenThrow(new IllegalArgumentException("이미 사용된 쿠폰입니다"));
 
         // when & then
-        assertThatThrownBy(() -> orderFacade.order(userId, productId, qty, userCouponId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("이미 사용된 쿠폰입니다");
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> orderFacade.order(command)
+        );
+
+        assertEquals("이미 사용된 쿠폰입니다", exception.getMessage());
 
     }
 
@@ -188,20 +236,25 @@ public class OrderFacadeTest {
         int qty = 1;
         int price = 10000;
 
+        OrderItemCommand item = new OrderItemCommand(productId, qty);
+        OrderCommand command = new OrderCommand(userId, List.of(item), List.of(123L));
+
         Product product = new Product("맥북", 320000, ProductStatus.DISCONTINUED);
         ProductStock stock = new ProductStock(product, 5);
         Balance balance = new Balance(userId, 500000);
         User user = new User("테스트 유저");
 
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(productRepository.findById(productId)).willReturn(Optional.of(product));
-        given(productStockRepository.findByProductId(productId)).willReturn(Optional.of(stock));
-        given(balanceRepository.findByUserId(userId)).willReturn(Optional.of(balance));
+        given(userService.findByUserId(userId)).willReturn(user);
+        when(orderCalculationService.calculateOrderItems(anyList(), any()))
+                .thenThrow(new IllegalArgumentException("판매중인 상품이 아닙니다"));
 
         // when & then
-        assertThatThrownBy(() -> orderFacade.order(userId, productId, qty, null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("판매중인 상품이 아닙니다.");
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> orderFacade.order(command)
+        );
+
+        assertEquals("판매중인 상품이 아닙니다", exception.getMessage());
     }
 
     @Test
@@ -213,20 +266,25 @@ public class OrderFacadeTest {
         int qty = 1;
         int price = 10000;
 
+        OrderItemCommand item = new OrderItemCommand(productId, qty);
+        OrderCommand command = new OrderCommand(userId, List.of(item), List.of(123L));
+
         Product product = new Product("맥북", 320000, ProductStatus.DELETE);
         ProductStock stock = new ProductStock(product, 5);
         Balance balance = new Balance(userId, 500000);
         User user = new User("테스트 유저");
 
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(productRepository.findById(productId)).willReturn(Optional.of(product));
-        given(productStockRepository.findByProductId(productId)).willReturn(Optional.of(stock));
-        given(balanceRepository.findByUserId(userId)).willReturn(Optional.of(balance));
+        given(userService.findByUserId(userId)).willReturn(user);
+        when(orderCalculationService.calculateOrderItems(anyList(), any()))
+                .thenThrow(new IllegalArgumentException("판매중인 상품이 아닙니다"));
 
         // when & then
-        assertThatThrownBy(() -> orderFacade.order(userId, productId, qty, null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("판매중인 상품이 아닙니다.");
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> orderFacade.order(command)
+        );
+
+        assertEquals("판매중인 상품이 아닙니다", exception.getMessage());
     }
 
     @Test
@@ -238,20 +296,25 @@ public class OrderFacadeTest {
         int qty = 1;
         int price = 10000;
 
+        OrderItemCommand item = new OrderItemCommand(productId, qty);
+        OrderCommand command = new OrderCommand(userId, List.of(item), List.of(123L));
+
         Product product = new Product("맥북", 320000, ProductStatus.SOLD_OUT);
         ProductStock stock = new ProductStock(product, 5);
         Balance balance = new Balance(userId, 500000);
         User user = new User("테스트 유저");
 
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(productRepository.findById(productId)).willReturn(Optional.of(product));
-        given(productStockRepository.findByProductId(productId)).willReturn(Optional.of(stock));
-        given(balanceRepository.findByUserId(userId)).willReturn(Optional.of(balance));
+        given(userService.findByUserId(userId)).willReturn(user);
+        when(orderCalculationService.calculateOrderItems(anyList(), any()))
+                .thenThrow(new IllegalArgumentException("판매중인 상품이 아닙니다"));
 
         // when & then
-        assertThatThrownBy(() -> orderFacade.order(userId, productId, qty, null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("판매중인 상품이 아닙니다.");
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> orderFacade.order(command)
+        );
+
+        assertEquals("판매중인 상품이 아닙니다", exception.getMessage());
     }
 
     @Test
@@ -259,24 +322,28 @@ public class OrderFacadeTest {
     void 존재하지_않는_쿠폰_ID일_경우_예외() {
         Long userId = 1L;
         Long productId = 1L;
-        int qty = 1;
         Long userCouponId = 1L;
+        int qty = 1;
 
+        OrderItemCommand item = new OrderItemCommand(productId, qty);
+        OrderCommand command = new OrderCommand(userId, List.of(item), List.of(123L));
         Product product = new Product("맥북", 320000, ProductStatus.SOLD_OUT);
-        ProductStock stock = new ProductStock(product, 5);
-        Balance balance = new Balance(userId, 500000);
-        User user = new User("테스트 유저");
+        OrderItem orderItem = new OrderItem(product, qty, product.getPrice());
 
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(productRepository.findById(productId)).willReturn(Optional.of(product));
-        given(productStockRepository.findByProductId(productId)).willReturn(Optional.of(stock));
-        given(balanceRepository.findByUserId(userId)).willReturn(Optional.of(balance));
-        given(userCouponRepository.findById(userCouponId)).willReturn(Optional.empty());
+        OrderSummary summary = new OrderSummary(List.of(orderItem), product.getPrice() * qty);
 
-        assertThatThrownBy(() -> orderFacade.order(userId, productId, qty, userCouponId))
+        when(userService.findByUserId(userId)).thenReturn(new User(userId, "사용자"));
+        when(balanceService.findByUserId(userId)).thenReturn(new Balance(userId, 20000));
+        when(orderCalculationService.calculateOrderItems(anyList(), any())).thenReturn(summary);
+
+        when(couponService.applyCoupons(anyList(), anyInt()))
+                .thenThrow(new IllegalArgumentException("쿠폰을 찾을 수 없습니다"));
+
+        assertThatThrownBy(() -> orderFacade.order(command))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("쿠폰을 찾을 수 없습니다.");
+                .hasMessageContaining("쿠폰을 찾을 수 없습니다");
     }
+
 
     @Test
     @DisplayName("존재하지 않는 사용자 ID일 경우 예외가 발생한다")
@@ -286,11 +353,13 @@ public class OrderFacadeTest {
         int qty = 1;
 
         Product product = new Product("맥북", 30000, ProductStatus.AVAILABLE);
-        ProductStock stock = new ProductStock(product, 5);
 
-        given(userRepository.findById(userId)).willReturn(Optional.empty());
+        given(userService.findByUserId(userId))
+                .willThrow(new IllegalArgumentException("존재하지 않는 사용자입니다"));
 
-        assertThatThrownBy(() -> orderFacade.order(userId, productId, qty, null))
+        OrderCommand command = OrderCommand.of(userId, List.of(new OrderItemCommand(productId, qty)), qty, null);
+
+        assertThatThrownBy(() -> orderFacade.order(command))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("존재하지 않는 사용자입니다");
     }
@@ -298,15 +367,27 @@ public class OrderFacadeTest {
     @Test
     @DisplayName("존재하지 않는 상품 ID일 경우 예외가 발생한다")
     void 존재하지_않는_상품_ID일_경우_예외() {
+        // given
         Long userId = 1L;
-        Long productId = 99L;
+        Long productId = 1L;
+        int qty = 1;
+        int price = 10000;
+
+        OrderItemCommand item = new OrderItemCommand(productId, qty);
+        OrderCommand command = new OrderCommand(userId, List.of(item), List.of(123L));
+        Balance balance = new Balance(userId, 500000);
         User user = new User("테스트 유저");
 
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(productRepository.findById(productId)).willReturn(Optional.empty());
+        given(userService.findByUserId(userId)).willReturn(user);
+        when(orderCalculationService.calculateOrderItems(anyList(), any()))
+                .thenThrow(new IllegalArgumentException("존재하지 않는 상품입니다."));
 
-        assertThatThrownBy(() -> orderFacade.order(userId, productId, 1, null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("존재하지 않는 상품입니다");
+        // when & then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> orderFacade.order(command)
+        );
+
+        assertEquals("존재하지 않는 상품입니다.", exception.getMessage());
     }
 }

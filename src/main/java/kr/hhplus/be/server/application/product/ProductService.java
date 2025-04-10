@@ -1,8 +1,11 @@
 package kr.hhplus.be.server.application.product;
 
+import kr.hhplus.be.server.application.order.dto.OrderCommand;
+import kr.hhplus.be.server.application.order.dto.OrderItemCommand;
 import kr.hhplus.be.server.application.product.dto.ProductResponse;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
+import kr.hhplus.be.server.domain.product.ProductStock;
 import org.springframework.stereotype.Service;
 import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;
 import java.util.List;
@@ -32,8 +35,9 @@ public class ProductService {
     }
 
     // 도메인 객체가 필요한 경우
-    public Product findEntityById(Long productId) {
+    public Product findByProductId(Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
     }
+
 }

@@ -1,105 +1,82 @@
 package kr.hhplus.be.server.application.order;
 
-import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.domain.product.ProductRepository;
-import kr.hhplus.be.server.domain.product.ProductStock;
-import kr.hhplus.be.server.domain.product.ProductStockRepository;
-import kr.hhplus.be.server.domain.product.ProductStatus;
+import kr.hhplus.be.server.application.coupon.CouponService;
+import kr.hhplus.be.server.application.product.ProductStockService;
+import kr.hhplus.be.server.application.order.dto.*;
+import kr.hhplus.be.server.application.user.UserCouponService;
+import kr.hhplus.be.server.application.user.UserService;
+import kr.hhplus.be.server.application.balance.BalanceService;
+import kr.hhplus.be.server.application.product.ProductService;
+import kr.hhplus.be.server.domain.order.OrderValidator;
 import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.order.OrderItem;
-import kr.hhplus.be.server.domain.order.OrderRepository;
 import kr.hhplus.be.server.domain.user.User;
-import kr.hhplus.be.server.domain.user.UserRepository;
 import kr.hhplus.be.server.domain.user.UserCoupon;
-import kr.hhplus.be.server.domain.user.UserCouponRepository;
 import kr.hhplus.be.server.domain.balance.Balance;
-import kr.hhplus.be.server.domain.balance.BalanceRepository;
 
-import kr.hhplus.be.server.domain.order.exception.*;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class OrderFacade {
-    private final ProductRepository productRepository;
-    private final ProductStockRepository productStockRepository;
-    private final OrderRepository orderRepository;
-    private final UserRepository userRepository;
-    private final UserCouponRepository userCouponRepository;
-    private final BalanceRepository balanceRepository;
+
+    private final UserService userService;
+    private final ProductStockService productStockService;
+    private final BalanceService balanceService;
+    private final UserCouponService userCouponService;
+    private final OrderService orderService;
+    private final OrderCalculationService orderCalculationService;
+    private final CouponService couponService;
 
     public OrderFacade(
-            ProductRepository productRepository,
-            ProductStockRepository productStockRepository,
-            OrderRepository orderRepository,
-            UserRepository userRepository,
-            UserCouponRepository userCouponRepository,
-            BalanceRepository balanceRepository
+            OrderValidator orderValidator,
+            UserService userService,
+            ProductService productService,
+            ProductStockService productStockService,
+            BalanceService balanceService,
+            UserCouponService userCouponService,
+            OrderService orderService,
+            OrderItemService orderItemService,
+            OrderCalculationService orderCalculationService,
+            CouponService couponService
     ) {
-        this.productRepository = productRepository;
-        this.productStockRepository = productStockRepository;
-        this.orderRepository = orderRepository;
-        this.userRepository = userRepository;
-        this.userCouponRepository = userCouponRepository;
-        this.balanceRepository = balanceRepository;
+        this.userService = userService;
+        this.productStockService = productStockService;
+        this.balanceService = balanceService;
+        this.userCouponService = userCouponService;
+        this.orderService = orderService;
+        this.orderCalculationService = orderCalculationService;
+        this.couponService = couponService;
     }
 
     @Transactional
-    public void order(Long userId, Long productId, int qty, Long userCouponId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
-        ProductStock stock = productStockRepository.findByProductId(productId)
-                .orElseThrow(() -> new InsufficientStockException("상품 재고가 부족합니다."));
-        Balance balance = balanceRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("잔액 정보가 없습니다."));
+    public OrderDto order(OrderCommand command) {
+        // 1. 입력 검증 및 초기 데이터 조회
+        User user = userService.findByUserId(command.getUserId());
+        Balance balance = balanceService.findByUserId(command.getUserId());
 
-        UserCoupon userCoupon = null;
-        int totalPrice = product.getPrice() * qty;
+        // 2. 주문 계산 처리
+        OrderSummary calcResult = orderCalculationService.calculateOrderItems(command.getItems(), balance);
 
-        if (userCouponId != null) {
-            userCoupon = userCouponRepository.findById(userCouponId)
-                    .orElseThrow(() -> new IllegalArgumentException("쿠폰을 찾을 수 없습니다."));
-            totalPrice = userCoupon.getCoupon().discount(totalPrice);
-        }
+        // 3. 쿠폰 할인 처리
+        List<UserCoupon> coupons = couponService.retrieveCoupons(command.getUserCouponIds());
+        int discountedTotal = couponService.applyCoupons(coupons, calcResult.getTotalPrice());
 
-        // 검증
-        validateOrder(product, stock, balance, userCoupon, qty, totalPrice);
+        // 4. 상태 변경 (잔액 차감, 상품 재고 차감, 사용자 쿠폰 사욪 처리)
+        balanceService.useBalance(balance, discountedTotal);
+        productStockService.decreaseProductStocks(command.getItems());
+        userCouponService.useUserCoupons(coupons);
 
-        // 상태 변경 (차감)
-        balance.use(totalPrice);
-        stock.decrease(qty);
-        if (userCoupon != null) userCoupon.use();
+        // 5. 주문 생성 및 저장 (도메인 객체 내 캡슐화)
+        Order order = orderService.createOrder(user, calcResult.getOrderItems(), coupons, discountedTotal);
 
-        // 주문 생성 및 저장
-        OrderItem orderItem = new OrderItem(product, qty, product.getPrice());
-        Order order = Order.create(user, userCoupon, List.of(orderItem), totalPrice);
-        orderRepository.save(order);
+        // 6. 응답 매핑
+        return OrderMapper.toOrderDto(order);
     }
 
-    private void validateOrder(Product product, ProductStock stock, Balance balance, UserCoupon userCoupon, int qty, int totalPrice) {
-        if (product.getStatus() != ProductStatus.AVAILABLE && product.getStatus() != ProductStatus.ON_SALE) {
-            throw new IllegalArgumentException("판매중인 상품이 아닙니다.");
-        }
-
-        if (!stock.hasEnough(qty)) {
-            throw new InsufficientStockException("상품 재고가 부족합니다.");
-        }
-
-        if (userCoupon != null) {
-            if (userCoupon.isUsed()) {
-                throw new IllegalArgumentException("이미 사용된 쿠폰입니다.");
-            }
-            if (!userCoupon.getCoupon().isValidNow()) {
-                throw new IllegalArgumentException("유효하지 않은 쿠폰입니다.");
-            }
-        }
-
-        if (balance.getBalance() < totalPrice) {
-            throw new InsufficientBalanceException("잔액이 부족합니다");
-        }
-    }
 }

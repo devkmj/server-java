@@ -1,0 +1,25 @@
+package kr.hhplus.be.server.api.order.dto;
+
+public class OrderItemRequest {
+    private Long productId;
+    private int qty;
+    private int price;
+
+    public OrderItemRequest(Long productId, int qty) {
+        this.productId = productId;
+        this.qty = qty;
+        this.price = qty * qty;
+    }
+
+    public Long getProductId() {
+        return productId;
+    }
+
+    public int getQty() {
+        return qty;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+}

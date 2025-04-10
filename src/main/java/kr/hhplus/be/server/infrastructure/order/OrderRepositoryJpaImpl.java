@@ -6,8 +6,20 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class OrderRepositoryJpaImpl implements OrderRepository {
-    @Override
-    public void save(Order order) {
 
+    private final OrderRepository orderRepository;
+
+    public OrderRepositoryJpaImpl(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
+
+    @Override
+    public Order save(Order order) {
+        return orderRepository.save(order);
+    }
+
+    @Override
+    public Order findById(Long id) {
+        return orderRepository.findById(id);
     }
 }

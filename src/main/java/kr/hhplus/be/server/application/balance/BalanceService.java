@@ -31,4 +31,13 @@ public class BalanceService {
         balance.charge(command.getAmount()); // 도메인 메서드 호출
         balanceRepository.save(balance);
     }
+
+    public Balance findByUserId(Long userId) {
+        return balanceRepository.findByUserId(userId)
+                .orElseThrow(() -> new BalanceNotFoundException("잔액 정보가 없습니다"));
+    }
+
+    public void useBalance(Balance balance, int totalPrice) {
+        balance.deduct(totalPrice);
+    }
 }

@@ -20,4 +20,9 @@ public class UserRepositoryJpaImpl implements UserRepository {
     public Optional<User> findById(Long id) {
         return Optional.empty();
     }
+
+    @Override
+    public User findByUserId(Long userId) {
+        return null;
+    }
 }

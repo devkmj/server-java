@@ -1,6 +1,5 @@
-package kr.hhplus.be.server.application;
+package kr.hhplus.be.server.application.user;
 
-import org.springframework.transaction.annotation.Transactional;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserRepository;
 import org.springframework.stereotype.Service;
@@ -14,8 +13,8 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    private User getUser(Long userId) {
+    public User findByUserId(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다"));
     }
 }

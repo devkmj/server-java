@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.BaseTimeEntity;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserCoupon;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -18,9 +20,9 @@ public class Order extends BaseTimeEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_coupon_id")
-    private UserCoupon userCoupon;
+    private List<UserCoupon> userCoupons;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
@@ -32,10 +34,15 @@ public class Order extends BaseTimeEntity {
 
     protected Order() {}
 
-    public static Order create(User user, UserCoupon coupon, List<OrderItem> items, int totalPrice) {
+    public static Order create(User user, List<UserCoupon> userCoupons, List<OrderItem> items, int totalPrice) {
+        if (user == null) throw new IllegalArgumentException("주문자는 필수입니다.");
+        if (items == null || items.isEmpty()) throw new IllegalArgumentException("주문 항목은 1개 이상이어야 합니다.");
+        if (totalPrice <= 0) throw new IllegalArgumentException("총 금액은 0보다 커야 합니다.");
+        if (userCoupons != null && !user.ownsCoupon(userCoupons)) throw new IllegalArgumentException("해당 쿠폰은 사용자 소유가 아닙니다.");
+
         Order order = new Order();
         order.user = user;
-        order.userCoupon = coupon;
+        order.userCoupons = userCoupons;
         order.items = items; // ✅ 필드에 할당
         order.totalPrice = totalPrice;
         order.status = OrderStatus.PENDING;
@@ -65,8 +72,8 @@ public class Order extends BaseTimeEntity {
         return user;
     }
 
-    public UserCoupon getUserCoupon() {
-        return userCoupon;
+    public List<UserCoupon> getUserCoupon() {
+        return userCoupons;
     }
 
     public OrderStatus getStatus() {
@@ -77,7 +84,12 @@ public class Order extends BaseTimeEntity {
         return totalPrice;
     }
 
-    public List<OrderItem> getItems() {
+    public List<OrderItem> getOrderItems() {
         return items;
     }
+
+    public LocalDateTime getCreateTime() {
+        return this.createdAt;
+    }
+
 }

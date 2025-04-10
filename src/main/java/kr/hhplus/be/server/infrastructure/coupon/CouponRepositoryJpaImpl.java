@@ -1,15 +1,16 @@
-package kr.hhplus.be.server.infrastructure.user;
+package kr.hhplus.be.server.infrastructure.coupon;
 
+import kr.hhplus.be.server.domain.coupon.Coupon;
+import kr.hhplus.be.server.domain.coupon.CouponRepository;
 import kr.hhplus.be.server.domain.user.UserCoupon;
-import kr.hhplus.be.server.domain.user.UserCouponRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public class UserCouponRepositoryJpaImpl implements UserCouponRepository {
+public class CouponRepositoryJpaImpl implements CouponRepository {
     @Override
-    public Optional<UserCoupon> findById(Long id) {
+    public Optional<Coupon> findById(Long id) {
         return Optional.empty();
     }
 

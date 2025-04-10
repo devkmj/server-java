@@ -1,15 +1,9 @@
 package kr.hhplus.be.server.application;
 
-import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.application.user.UserService;
 import kr.hhplus.be.server.domain.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class UserServiceTest {
