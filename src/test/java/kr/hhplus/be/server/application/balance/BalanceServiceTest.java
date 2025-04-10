@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.application.balance;
 
+import kr.hhplus.be.server.application.balance.dto.BalanceChargeCommand;
 import kr.hhplus.be.server.domain.balance.Balance;
 import kr.hhplus.be.server.domain.balance.BalanceRepository;
 import kr.hhplus.be.server.domain.balance.exception.BalanceNotFoundException;
@@ -35,7 +36,7 @@ public class BalanceServiceTest {
         given(balanceRepository.findByUserId(userId)).willReturn(Optional.of(balance));
 
         // when
-        int result = balanceService.getBalance(userId);
+        int result = balanceService.getBalance(userId).getBalance();
 
         // then
         assertThat(result).isEqualTo(10000);
@@ -51,14 +52,14 @@ public class BalanceServiceTest {
         // expect
         assertThatThrownBy(() -> balanceService.getBalance(userId))
                 .isInstanceOf(BalanceNotFoundException.class)
-                .hasMessageContaining("잔액 정보가 없습니다");
+                .hasMessageContaining("존재하지 않는 사용자입니다");
     }
 
     @Test
     @DisplayName("잔액 충전 - 0 이하 금액 예외 발생")
     void 잔액_충전_실패_음수_예외발생(){
-        //expect
-        assertThatThrownBy(() -> balanceService.charge(1L, 0))
+        // expect
+        assertThatThrownBy(() -> balanceService.charge(new BalanceChargeCommand(1L, 0)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("충전 금액은 0보다 커야 합니다");
     }
@@ -73,7 +74,7 @@ public class BalanceServiceTest {
         given(balanceRepository.save(any())).willReturn(balance);
 
         // when
-        balanceService.charge(userId, 5000);
+        balanceService.charge(new BalanceChargeCommand(userId, 5000));
 
         // then
         assertThat(balance.getBalance()).isEqualTo(15000);

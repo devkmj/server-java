@@ -54,18 +54,4 @@ class UserE2ETest {
     @Autowired
     private ProductRepository productRepository;
 
-    @BeforeEach
-    void setUp() {
-        // 💡 기본 사용자 삽입
-        userRepository.save(new User("테스트유저", 45000));
-
-
-    }
-
-    @Test
-    void 잔액_조회_Mock_API는_정상적인_숫자값을_반환해야_한다() throws Exception {
-        mockMvc.perform(get("/mock/users/1/balance"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").value(45000));
-    }
 }
