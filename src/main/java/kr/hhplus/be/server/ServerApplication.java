@@ -2,9 +2,11 @@ package kr.hhplus.be.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
+@EnableJpaAuditing
 @EnableJpaRepositories(basePackages = "kr.hhplus.be.server.domain")
 public class ServerApplication {
 

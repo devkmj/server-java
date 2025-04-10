@@ -59,11 +59,7 @@ class UserE2ETest {
         // 💡 기본 사용자 삽입
         userRepository.save(new User("테스트유저", 45000));
 
-        // 💡 테스트용 상품 삽입
-        productRepository.saveAll(List.of(
-                new Product("아이폰 15", 1000000),
-                new Product("갤럭시 S24", 950000)
-        ));
+
     }
 
     @Test
