@@ -1,10 +1,11 @@
 package kr.hhplus.be.server.domain.user;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.domain.common.BaseTimeEntity;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,24 +13,11 @@ public class User {
 
     private String name;
 
-    private Integer balance;
 
     protected User() {}
 
-    public User(String name, Integer balance) {
+    public User(String name) {
         this.name = name;
-        this.balance = balance;
-    }
-
-    public void charge(Integer amount) {
-        this.balance += amount;
-    }
-
-    public void deduct(Integer amount) {
-        if (this.balance < amount) {
-            throw new IllegalArgumentException("잔액이 부족합니다.");
-        }
-        this.balance -= amount;
     }
 
     public Long getId() {
@@ -40,7 +28,4 @@ public class User {
         return name;
     }
 
-    public Integer getBalance() {
-        return balance;
-    }
 }
