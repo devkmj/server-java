@@ -51,4 +51,10 @@ public class Product extends BaseTimeEntity {
     public void markAsDiscontinued() {
         this.status = ProductStatus.DISCONTINUED;
     }
+
+    public void validateOrderable() {
+        if (this.status != ProductStatus.AVAILABLE && this.status != ProductStatus.ON_SALE) {
+            throw new IllegalArgumentException("판매중인 상품이 아닙니다.");
+        }
+    }
 }

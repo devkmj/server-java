@@ -1,4 +1,5 @@
 package kr.hhplus.be.server.domain.order;
 
-public class OrderRepository {
+public interface OrderRepository {
+    void save(Order order);
 }

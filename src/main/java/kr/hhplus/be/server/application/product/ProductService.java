@@ -1,10 +1,12 @@
 package kr.hhplus.be.server.application.product;
 
+import kr.hhplus.be.server.application.product.dto.ProductResponse;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
 import org.springframework.stereotype.Service;
 import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -15,16 +17,23 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public List<Product> findAll() {
-        return productRepository.findAll();
+    // 전체 조회
+    public List<ProductResponse> getAllProducts() {
+        return productRepository.findAll().stream()
+                .map(ProductResponse::from)
+                .collect(Collectors.toList());
     }
 
-    public Product findById(Long productId) {
+    // 단건 조회
+    public ProductResponse getById(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+        return ProductResponse.from(product);
+    }
+
+    // 도메인 객체가 필요한 경우
+    public Product findEntityById(Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
-    }
-
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
     }
 }

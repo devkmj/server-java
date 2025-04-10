@@ -26,5 +26,18 @@ public class ProductStock extends BaseTimeEntity {
     public int getStock() {
         return stock;
     }
-    
+
+    public void validateEnough(int qty) {
+        if (this.stock < qty) {
+            throw new IllegalArgumentException("상품 재고가 부족합니다.");
+        }
+    }
+
+    public void decrease(int qty) {
+        this.stock -= qty;
+    }
+
+    public boolean hasEnough(int qty) {
+        return this.stock >= qty;
+    }
 }

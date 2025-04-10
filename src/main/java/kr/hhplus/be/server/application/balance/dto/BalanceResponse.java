@@ -2,9 +2,7 @@ package kr.hhplus.be.server.application.balance.dto;
 
 import kr.hhplus.be.server.domain.balance.Balance;
 
-public class BalanceResponse {
-    private final Long userId;
-    private final int balance;
+public record BalanceResponse(Long userId, int balance) {
 
     public BalanceResponse(Long userId, int balance) {
         this.userId = userId;

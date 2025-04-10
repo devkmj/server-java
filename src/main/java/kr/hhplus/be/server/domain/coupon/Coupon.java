@@ -69,4 +69,15 @@ public class Coupon extends BaseTimeEntity {
     public LocalDateTime getValidUntil() {
         return validUntil;
     }
+
+    public boolean isValidNow() {
+        LocalDateTime now = LocalDateTime.now();
+        return (now.isEqual(validFrom) || now.isAfter(validFrom)) &&
+                (now.isEqual(validUntil) || now.isBefore(validUntil));
+    }
+
+    public int discount(int totalPrice) {
+        int discounted = totalPrice - (totalPrice * rate / 100);
+        return Math.max(discounted, 0);  // 최소 0원 보장
+    }
 }

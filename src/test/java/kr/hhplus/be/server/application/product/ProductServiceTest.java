@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.application.product;
 
+import kr.hhplus.be.server.application.product.dto.ProductResponse;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
 import kr.hhplus.be.server.domain.product.ProductStatus;
@@ -39,7 +40,7 @@ public class ProductServiceTest {
         given(productRepository.findById(invalidProductId)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> productService.findById(invalidProductId))
+        assertThatThrownBy(() -> productService.getById(invalidProductId))
                 .isInstanceOf(ProductNotFoundException.class)
                 .hasMessage(NOT_FOUND_PRODUCT);
     }
@@ -62,7 +63,7 @@ public class ProductServiceTest {
         given(productRepository.findAll()).willReturn(Collections.emptyList());
 
         //when
-        List<Product> result = productService.getAllProducts();
+        List<ProductResponse> result = productService.getAllProducts();
 
         //then
         assertThat(result).isEmpty();
@@ -79,7 +80,7 @@ public class ProductServiceTest {
         given(productRepository.findAll()).willReturn(products);
 
         //when
-        List<Product> result = productService.getAllProducts();
+        List<ProductResponse> result = productService.getAllProducts();
 
         //then
         assertThat(result).hasSize(2);
@@ -97,13 +98,12 @@ public class ProductServiceTest {
         given(productRepository.findAll()).willReturn(products);
 
         // when
-        List<Product> result = productService.getAllProducts();
+        List<ProductResponse> result = productService.getAllProducts();
 
         // then
-        assertThat(result).hasSize(3);
-        assertThat(result.get(0)).isEqualTo(products.get(0));
-        assertThat(result.get(1)).isEqualTo(products.get(1));
-        assertThat(result.get(2)).isEqualTo(products.get(2));
+        assertThat(result.get(0)).isEqualTo(ProductResponse.from(products.get(0)));
+        assertThat(result.get(1)).isEqualTo(ProductResponse.from(products.get(1)));
+        assertThat(result.get(2)).isEqualTo(ProductResponse.from(products.get(2)));
     }
 
     @Test
@@ -115,10 +115,13 @@ public class ProductServiceTest {
         given(productRepository.findAll()).willReturn(List.of(p1, p2));
 
         // when
-        List<Product> result = productService.getAllProducts();
+        List<ProductResponse> result = productService.getAllProducts();
 
         // then
-        assertThat(result).containsExactly(p1, p2);
+        assertThat(result).containsExactly(
+                ProductResponse.from(p1),
+                ProductResponse.from(p2)
+        );
     }
 
     @Test
@@ -149,9 +152,9 @@ public class ProductServiceTest {
         given(productRepository.findById(1L)).willReturn(Optional.of(product));
 
         // when
-        Product result = productService.findById(1L);
+        ProductResponse result = productService.getById(1L);
 
         // then
-        assertThat(result).isEqualTo(product);
+        assertThat(result).isEqualTo(ProductResponse.from(product));
     }
 }

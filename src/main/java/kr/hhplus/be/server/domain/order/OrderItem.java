@@ -1,13 +1,15 @@
 package kr.hhplus.be.server.domain.order;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.domain.common.BaseTimeEntity;
+import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.user.UserCoupon;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "order_item")
-public class OrderItem {
+public class OrderItem extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,24 +20,18 @@ public class OrderItem {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    // 사용자 쿠폰 (nullable 가능성 있음에 주의)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_coupon_id")
-    private UserCoupon userCoupon;
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     private int qty;
 
     private int price; // 스냅샷용 상품 가격
 
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
-
     protected OrderItem() {}
 
-    public OrderItem(Order order, UserCoupon userCoupon, int qty, int price) {
-        this.order = order;
-        this.userCoupon = userCoupon;
+    public OrderItem(Product product, int qty, int price) {
+        this.product = product;
         this.qty = qty;
         this.price = price;
         this.createdAt = LocalDateTime.now();
@@ -46,13 +42,13 @@ public class OrderItem {
         return qty * price;
     }
 
-    public void applyCoupon(UserCoupon coupon) {
-        this.userCoupon = coupon;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
- 
+
 }

@@ -57,4 +57,14 @@ public class Balance extends BaseTimeEntity {
     public Integer getBalance() {
         return balance;
     }
+
+    public void validateEnough(int amount) {
+        if (this.balance < amount) {
+            throw new IllegalArgumentException("잔액이 부족합니다");
+        }
+    }
+
+    public void use(int totalPrice) {
+        this.balance -= totalPrice;
+    }
 }
