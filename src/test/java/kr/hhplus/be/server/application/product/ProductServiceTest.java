@@ -30,9 +30,6 @@ public class ProductServiceTest {
     @InjectMocks
     private ProductService productService;
 
-    @InjectMocks
-    private ProductStatus productStatus;
-
     @Test
     @DisplayName("존재하지 않는 상품 조회시 예외가 발생한다")
     void 존재하지_않는_상품_ID로_조회시_예외가_발생한다(){

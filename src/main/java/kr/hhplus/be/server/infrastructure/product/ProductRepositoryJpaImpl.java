@@ -6,6 +6,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class ProductRepositoryJpaImpl implements ProductRepository {
@@ -22,7 +23,7 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
     }
 
     @Override
-    public Object findById(Long invalidProductId) {
-        return null;
+    public Optional<Product> findById(Long id) {
+        return productJpaRepository.findById(id);
     }
 }
