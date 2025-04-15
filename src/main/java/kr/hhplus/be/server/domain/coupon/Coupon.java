@@ -2,6 +2,8 @@ package kr.hhplus.be.server.domain.coupon;
 
 import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.BaseTimeEntity;
+import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.domain.user.UserCoupon;
 
 import java.time.LocalDateTime;
 
@@ -23,13 +25,13 @@ public class Coupon extends BaseTimeEntity {
 
     public Coupon(int rate, int totalCount, int issuedCount, LocalDateTime validFrom, LocalDateTime validUntil) {
         if (rate <= 0 || rate > 100) {
-            throw new IllegalArgumentException("할인율은 1~100 사이여야 합니다.");
+            throw new IllegalArgumentException("할인율은 1~100 사이여야 합니다");
         }
         if (totalCount <= 0) {
-            throw new IllegalArgumentException("총 발급 수량은 0보다 커야 합니다.");
+            throw new IllegalArgumentException("총 발급 수량은 0보다 커야 합니다");
         }
         if (validFrom.isAfter(validUntil)) {
-            throw new IllegalArgumentException("유효기간 설정이 잘못되었습니다.");
+            throw new IllegalArgumentException("유효기간 설정이 잘못되었습니다");
         }
         this.rate = rate;
         this.totalCount = totalCount;
@@ -38,11 +40,13 @@ public class Coupon extends BaseTimeEntity {
         this.validUntil = validUntil;
     }
 
-    public void issue() {
+    public UserCoupon issue(User user) {
         if (issuedCount >= totalCount) {
-            throw new IllegalStateException("발급 가능 수량을 초과했습니다.");
+            throw new IllegalStateException("발급 가능 수량을 초과했습니다");
         }
         this.issuedCount += 1;
+
+        return new UserCoupon(user.getId(), this);
     }
 
     // Getter
