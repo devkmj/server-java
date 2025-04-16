@@ -8,10 +8,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class OrderItemRepositoryJpaImpl implements OrderItemRepository {
 
-    private final OrderItemRepository orderItemRepository;
+    private final OrderItemJpaRepository orderIteJpamRepository;
 
-    public OrderItemRepositoryJpaImpl(OrderItemRepository orderItemRepository) {
-        this.orderItemRepository = orderItemRepository;
+    public OrderItemRepositoryJpaImpl(OrderItemJpaRepository orderIteJpamRepository) {
+        this.orderIteJpamRepository = orderIteJpamRepository;
     }
-
 }

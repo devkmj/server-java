@@ -25,6 +25,4 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public void applyPaymentAndInventoryUpdates(Balance balance, int discountedTotal, List<OrderItemCommand> items, List<UserCoupon> coupons) {
-    }
 }

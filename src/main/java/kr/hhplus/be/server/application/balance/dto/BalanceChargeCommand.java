@@ -1,18 +1,18 @@
 package kr.hhplus.be.server.application.balance.dto;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
 public class BalanceChargeCommand {
 
+    @NotNull(message = "유효한 사용자 ID가 필요합니다")
+    @Min(value = 1, message = "유효한 사용자 ID가 필요합니다")
     private final Long userId;
+
+    @Min(value = 1, message = "충전 금액은 0보다 커야 합니다")
     private final int amount;
 
     public BalanceChargeCommand(Long userId, int amount) {
-        if (userId == null || userId <= 0) {
-            throw new IllegalArgumentException("유효한 사용자 ID가 필요합니다.");
-        }
-        if (amount <= 0) {
-            throw new IllegalArgumentException("충전 금액은 0보다 커야 합니다.");
-        }
-
         this.userId = userId;
         this.amount = amount;
     }

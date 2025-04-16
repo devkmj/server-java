@@ -34,6 +34,7 @@ public class OrderItemCommand {
     public void setProductId(Long productId) {
         this.productId = productId;
     }
+
     public int getQty() {
         return qty;
     }

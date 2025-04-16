@@ -7,19 +7,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class OrderRepositoryJpaImpl implements OrderRepository {
 
-    private final OrderRepository orderRepository;
+    private final OrderJpaRepository orderJpaRepository;
 
-    public OrderRepositoryJpaImpl(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
+    public OrderRepositoryJpaImpl(OrderJpaRepository orderJpaRepository) {
+        this.orderJpaRepository = orderJpaRepository;
     }
 
     @Override
     public Order save(Order order) {
-        return orderRepository.save(order);
+        return orderJpaRepository.save(order);
     }
 
     @Override
     public Order findById(Long id) {
-        return orderRepository.findById(id);
+        return orderJpaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다. id=" + id));  // Optional 대응도 함께
     }
 }

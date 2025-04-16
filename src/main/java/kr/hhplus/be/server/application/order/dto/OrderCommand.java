@@ -11,7 +11,6 @@ public class OrderCommand {
     private List<OrderItemCommand> items;
     private List<Long> userCouponIds; // Optional 가능
 
-
     public OrderCommand(Long userId, List<OrderItemCommand> items, List<Long> userCouponIds) {
         this.userId = userId;
         this.items = items;

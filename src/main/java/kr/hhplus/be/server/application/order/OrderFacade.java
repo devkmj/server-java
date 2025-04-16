@@ -9,7 +9,6 @@ import kr.hhplus.be.server.application.balance.BalanceService;
 import kr.hhplus.be.server.application.product.ProductService;
 import kr.hhplus.be.server.domain.order.OrderValidator;
 import kr.hhplus.be.server.domain.order.Order;
-import kr.hhplus.be.server.domain.order.OrderItem;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserCoupon;
 import kr.hhplus.be.server.domain.balance.Balance;
@@ -17,10 +16,7 @@ import kr.hhplus.be.server.domain.balance.Balance;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class OrderFacade {
@@ -34,14 +30,11 @@ public class OrderFacade {
     private final CouponService couponService;
 
     public OrderFacade(
-            OrderValidator orderValidator,
             UserService userService,
-            ProductService productService,
             ProductStockService productStockService,
             BalanceService balanceService,
             UserCouponService userCouponService,
             OrderService orderService,
-            OrderItemService orderItemService,
             OrderCalculationService orderCalculationService,
             CouponService couponService
     ) {

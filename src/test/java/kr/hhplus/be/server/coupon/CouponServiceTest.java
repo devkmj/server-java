@@ -1,12 +1,14 @@
 package kr.hhplus.be.server.coupon;
 
 import kr.hhplus.be.server.application.coupon.CouponService;
+import kr.hhplus.be.server.application.coupon.dto.IssueCouponCommand;
 import kr.hhplus.be.server.application.user.UserService;
 import kr.hhplus.be.server.domain.coupon.Coupon;
 import kr.hhplus.be.server.domain.coupon.CouponRepository;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserCoupon;
 import kr.hhplus.be.server.domain.user.UserCouponRepository;
+import kr.hhplus.be.server.domain.user.UserRepository;
 import org.apache.juli.logging.Log;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,9 +23,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.hamcrest.Matchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,6 +34,9 @@ public class CouponServiceTest {
 
     @Mock
     private UserCouponRepository userCouponRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Mock
     private UserService userService;
@@ -51,12 +54,15 @@ public class CouponServiceTest {
         Coupon coupon = new Coupon(30, 100, 60,
                 LocalDateTime.now().minusDays(4),
                 LocalDateTime.now().plusMonths(1));
+        User user = new User(userId, "Test");
 
+        IssueCouponCommand issueCouponCommand = new IssueCouponCommand(userId, couponId);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(couponRepository.findById(couponId)).willReturn(Optional.of(coupon));
-        given(couponRepository.existsByUserIdAndCouponId(userId, couponId)).willReturn(false);
 
         // when & then
-        assertThatCode(() -> couponService.issueCoupon(userId, couponId))
+        assertThatCode(() -> couponService.issueCoupon(issueCouponCommand))
                 .doesNotThrowAnyException();
 
         verify(userCouponRepository).save(Mockito.any(UserCoupon.class));
@@ -65,16 +71,17 @@ public class CouponServiceTest {
     @Test
     @DisplayName("사용자 인증 실패")
     void 사용자_인증_실패(){
-        Long userId = 1L;
+        Long userId = 99L;
         Long couponId = 10L;
 
         Coupon coupon = new Coupon(30, 100, 60,
                 LocalDateTime.now().minusDays(4),
                 LocalDateTime.now().plusMonths(1));
 
-        given(userService.findByUserId(userId)).willThrow(new IllegalArgumentException("존재하지 않는 사용자입니다"));
+        IssueCouponCommand issueCouponCommand = new IssueCouponCommand(userId, couponId);
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
 
-        assertThatThrownBy(()-> couponService.issueCoupon(userId, couponId))
+        assertThatThrownBy(()-> couponService.issueCoupon(issueCouponCommand))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("존재하지 않는 사용자입니다");
     }
@@ -82,13 +89,49 @@ public class CouponServiceTest {
     @Test
     @DisplayName("쿠폰 조회 실패")
     void 쿠폰_조회_실패(){
+        Long userId = 1L;
+        Long couponId = 999L;
+
+        User user = new User(userId, "Test");
+        IssueCouponCommand issueCouponCommand = new IssueCouponCommand(userId, couponId);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(couponRepository.findById(couponId)).willReturn(Optional.empty());
+
+        assertThatCode(() -> couponService.issueCoupon(issueCouponCommand))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("쿠폰을 찾을 수 없습니다");
 
     }
 
     @Test
     @DisplayName("이미 발급된 쿠폰")
-    void 이미_발급된_쿠폰(){
+    void 이미_발급된_쿠폰() {
+        // GIVEN
+        Long userId = 1L;
+        Long couponId = 999L;
 
+        User user = new User(userId, "Test");
+
+        // 테스트를 위한 수동 ID 설정 (coupon.getId() == 999L)
+        Coupon coupon = new Coupon(couponId, 30, 100, 100,
+                LocalDateTime.now().minusDays(4),
+                LocalDateTime.now().plusMonths(1));
+
+        // 이미 발급된 쿠폰 상태를 표현하는 유저-쿠폰 객체
+        UserCoupon userCoupon = new UserCoupon(userId, coupon);
+
+        IssueCouponCommand issueCouponCommand = new IssueCouponCommand(userId, couponId);
+
+        // Stubbing
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(couponRepository.findById(couponId)).willReturn(Optional.of(coupon));
+        given(userCouponRepository.existsByUserIdAndCouponId(userId, couponId)).willReturn(Boolean.valueOf(true));
+
+        // WHEN & THEN
+        assertThatThrownBy(() -> couponService.issueCoupon(issueCouponCommand))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("이미 발급 받은 쿠폰입니다");
     }
 
     @Test
@@ -101,17 +144,13 @@ public class CouponServiceTest {
         Coupon coupon = new Coupon(30, 100, 100,
                 LocalDateTime.now().minusDays(4),
                 LocalDateTime.now().plusMonths(1));
+        IssueCouponCommand issueCouponCommand = new IssueCouponCommand(userId, couponId);
 
-        System.out.println(coupon.getIssuedCount());
-        System.out.println(coupon.getTotalCount());
-
-
-        given(userService.findByUserId(userId)).willReturn(user);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(couponRepository.findById(couponId)).willReturn(Optional.of(coupon));
-        given(coupon.issue(user)).willThrow(new IllegalStateException("발급 가능 수량을 초과했습니다"));
 
         // when & then
-        assertThatThrownBy(() -> couponService.issueCoupon(userId, couponId))
+        assertThatThrownBy(() -> couponService.issueCoupon(issueCouponCommand))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("발급 가능 수량을 초과했습니다");
     }

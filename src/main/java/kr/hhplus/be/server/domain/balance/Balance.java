@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.BaseTimeEntity;
 
 @Entity
+@Table(name = "balance")
 public class Balance extends BaseTimeEntity {
 
     @Id
@@ -22,9 +23,6 @@ public class Balance extends BaseTimeEntity {
         if (userId == null || userId <= 0) {
             throw new IllegalArgumentException("유효하지 않은 사용자 ID입니다.");
         }
-        if(balance == null || balance <= 0) {
-            throw new IllegalArgumentException("초기 잔액은 0 이상이어야 합니다.");
-        }
         this.userId = userId;
         this.balance = balance;
     }
@@ -41,7 +39,7 @@ public class Balance extends BaseTimeEntity {
 
     public void charge(int amount) {
         if(amount <= 0) {
-            throw new IllegalArgumentException("충전 금액은 0보다 커야 합니다.");
+            throw new IllegalArgumentException("충전 금액은 0보다 커야 합니다");
         }
 
         this.balance += amount;

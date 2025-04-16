@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.application.coupon;
 
+import kr.hhplus.be.server.application.coupon.dto.IssueCouponCommand;
 import kr.hhplus.be.server.application.user.UserCouponService;
 import kr.hhplus.be.server.application.user.UserService;
 import kr.hhplus.be.server.domain.coupon.Coupon;
@@ -36,13 +37,14 @@ public class CouponService {
         return totalPrice;
     }
 
-    public void issueCoupon(Long userId, Long couponId) {
-        User user = userRepository.findByUserId(userId);
-        Coupon coupon = couponRepository.findById(couponId)
+    public void issueCoupon(IssueCouponCommand command) {
+        User user = userRepository.findById(command.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다"));
+        Coupon coupon = couponRepository.findById(command.getCouponId())
                 .orElseThrow(() -> new IllegalArgumentException("쿠폰을 찾을 수 없습니다"));
 
-        if (userCouponRepository.existsByUserIdAndCouponId(userId, couponId)) {
-            throw new IllegalStateException("이미 발급된 쿠폰입니다");
+        if (userCouponRepository.existsByUserIdAndCouponId(command.getUserId(), command.getCouponId())) {
+            throw new IllegalStateException("이미 발급 받은 쿠폰입니다");
         }
 
         UserCoupon userCoupon = coupon.issue(user);
