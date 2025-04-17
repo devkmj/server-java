@@ -1,10 +1,14 @@
 package kr.hhplus.be.server.application.balance;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.hhplus.be.server.application.balance.dto.BalanceChargeCommand;
+import kr.hhplus.be.server.api.order.OrderItemRequest;
+import kr.hhplus.be.server.api.order.OrderRequest;
+import kr.hhplus.be.server.domain.balance.BalanceChargeCommand;
 import kr.hhplus.be.server.domain.balance.Balance;
 import kr.hhplus.be.server.domain.balance.BalanceRepository;
+import kr.hhplus.be.server.domain.product.*;
+import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.domain.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,15 +19,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.validation.annotation.Validated;
+
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -32,6 +40,16 @@ public class BalanceIntegrationTest {
 
     @Autowired
     private BalanceRepository balanceRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ProductStockRepository productStockRepository;
+
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -177,5 +195,59 @@ public class BalanceIntegrationTest {
 
     }
 
+    @Test
+    @DisplayName("동일 유저가 동시에 여러 결제 요청 시 하나만 성공해야 한다")
+    void 동시_결제_요청_테스트() throws InterruptedException {
+        // given
+        User user = userRepository.save(new User("동시성 유저"));
+        Balance balance = balanceRepository.save(new Balance(user.getId(), 10000));
+        Product product = productRepository.save(new Product("테스트 상품", 10000, ProductStatus.AVAILABLE));
+        productStockRepository.save(new ProductStock(product, 1));
 
+        OrderRequest orderRequest = new OrderRequest(
+                user.getId(),
+                List.of(new OrderItemRequest(product.getId(), 1, product.getPrice())),
+                null
+        );
+
+        int threadCount = 2;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failCount = new AtomicInteger(0);
+
+        // when
+        for (int i = 0; i < threadCount; i++) {
+            executorService.submit(() -> {
+                try {
+                    mockMvc.perform(post("/orders")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(orderRequest)))
+                            .andExpect(result -> {
+                                int status = result.getResponse().getStatus();
+                                if (status == 200) {
+                                    successCount.incrementAndGet();
+                                } else {
+                                    failCount.incrementAndGet();
+                                }
+                            });
+                } catch (Exception e) {
+                    failCount.incrementAndGet();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        System.out.println("성공 요청 수: " + successCount.get());
+        System.out.println("실패 요청 수: " + failCount.get());
+
+        // 둘 중 하나만 성공해야 한다.
+        assertThat(successCount.get()).isEqualTo(1);
+        assertThat(failCount.get()).isEqualTo(1);
+    }
 }
