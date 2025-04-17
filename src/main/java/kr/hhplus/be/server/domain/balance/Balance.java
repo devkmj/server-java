@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.BaseTimeEntity;
 
 @Entity
-@Table(name = "balance")
+@Table(name = "balance", indexes = {
+        @Index(name = "idx_balance_user_id", columnList = "userId"),
+        @Index(name = "idx_balance_user_id_balance", columnList = "userId, balance")
+})
 public class Balance extends BaseTimeEntity {
 
     @Id

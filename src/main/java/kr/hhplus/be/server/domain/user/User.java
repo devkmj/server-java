@@ -6,7 +6,9 @@ import kr.hhplus.be.server.domain.common.BaseTimeEntity;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+        @Index(name = "idx_user_name", columnList = "name")
+})
 public class User extends BaseTimeEntity {
 
     @Id

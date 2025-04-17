@@ -10,7 +10,12 @@ import java.util.List;
 import java.util.ArrayList;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "orders", indexes = {
+        @Index(name = "idx_order_user_id", columnList = "user_id"),
+        @Index(name = "idx_order_status", columnList = "status"),
+        @Index(name = "idx_order_created_at", columnList = "created_at"),
+        @Index(name = "idx_order_user_status", columnList = "user_id, status")
+})
 public class Order extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

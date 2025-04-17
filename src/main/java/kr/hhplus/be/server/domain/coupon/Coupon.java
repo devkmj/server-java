@@ -8,7 +8,13 @@ import kr.hhplus.be.server.domain.user.UserCoupon;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "coupon")
+@Table(name = "coupon", indexes = {
+        @Index(name = "idx_coupon_valid_until", columnList = "validUntil"),
+        @Index(name = "idx_coupon_valid_from", columnList = "validFrom"),
+        @Index(name = "idx_coupon_rate", columnList = "rate"),
+        @Index(name = "idx_coupon_valid_range", columnList = "validFrom, validUntil"),
+        @Index(name = "idx_coupon_created_at", columnList = "created_at")
+})
 public class Coupon extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.BaseTimeEntity;
 
 @Entity
-@Table(name = "product_stock")
+@Table(name = "product_stock", indexes = {
+        @Index(name = "idx_product_stock_product_id", columnList = "product_id")
+})
 public class ProductStock extends BaseTimeEntity {
     @Id
     @GeneratedValue

@@ -5,7 +5,11 @@ import kr.hhplus.be.server.domain.common.BaseTimeEntity;
 import kr.hhplus.be.server.domain.coupon.Coupon;
 
 @Entity
-@Table(name = "user_coupon")
+@Table(name = "user_coupon", indexes = {
+        @Index(name = "idx_user_coupon_user_id", columnList = "userId"),
+        @Index(name = "idx_user_coupon_coupon_id", columnList = "coupon_id"),
+        @Index(name = "idx_user_coupon_used", columnList = "used")
+})
 public class UserCoupon extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

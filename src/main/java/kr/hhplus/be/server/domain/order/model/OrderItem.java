@@ -7,7 +7,11 @@ import kr.hhplus.be.server.domain.product.Product;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "order_item")
+@Table(name = "order_item", indexes = {
+        @Index(name = "idx_order_item_order_id" , columnList = "orderId"),
+        @Index(name = "idx_order_item_product_id" ,columnList = "productId"),
+        @Index(name = "idx_order_item_price" ,columnList = "price")
+})
 public class OrderItem extends BaseTimeEntity {
 
     @Id
