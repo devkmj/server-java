@@ -21,13 +21,7 @@ public class OrderRepositoryJpaImpl implements OrderRepository {
     }
 
     @Override
-<<<<<<< HEAD
     public Optional<Order> findById(Long id) {
         return orderJpaRepository.findById(id);
-=======
-    public Order findById(Long id) {
-        return orderJpaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다. id=" + id));  // Optional 대응도 함께
->>>>>>> feature/order
     }
 }

@@ -24,9 +24,4 @@ public class OrderService {
         Order order = Order.create(user, coupons, items, totalPrice);
         return orderRepository.save(order);
     }
-<<<<<<< HEAD
- 
-=======
-
->>>>>>> feature/order
 }

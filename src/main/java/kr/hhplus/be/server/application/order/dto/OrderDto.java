@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.application.order.dto;
 
+import kr.hhplus.be.server.domain.user.UserCoupon;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -11,15 +13,18 @@ public class OrderDto {
     private String orderStatus;
     private LocalDateTime createTime;
     private List<OrderItemDto> items;
+    private List<UserCoupon> usedCouponIds;
 
     public OrderDto() {}
 
-    public OrderDto(Long userId, Long productId, int totalPrice, String orderStatus, LocalDateTime createTime) {
+    public OrderDto(Long userId, Long productId, int totalPrice, String orderStatus, LocalDateTime createTime, List<OrderItemDto> items, List<UserCoupon> usedCouponIds) {
         this.userId = userId;
         this.productId = productId;
         this.totalPrice = totalPrice;
         this.orderStatus = orderStatus;
         this.createTime = createTime;
+        this.items = items;
+        this.usedCouponIds = usedCouponIds;
     }
 
     public Long getOrderId() {
@@ -54,6 +59,7 @@ public class OrderDto {
         this.totalPrice = totalPrice;
     }
 
+
     public String getOrderStatus() {
         return orderStatus;
     }
@@ -72,6 +78,18 @@ public class OrderDto {
 
     public List<OrderItemDto> getItems() {
         return items;
+    }
+
+    public void setItems(List<OrderItemDto> items) {
+        this.items = items;
+    }
+
+    public List<UserCoupon> getUsedCouponIds() {
+        return usedCouponIds;
+    }
+
+    public void setUsedCouponIds(List<UserCoupon> usedCouponIds) {
+        this.usedCouponIds = usedCouponIds;
     }
 
 }

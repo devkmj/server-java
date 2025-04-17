@@ -50,7 +50,13 @@ dependencies {
 	implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
 
 	// Database for test
-	testImplementation("com.h2database:h2") 
+	testImplementation("com.h2database:h2")
+
+	compileOnly("org.projectlombok:lombok:1.18.30")
+	annotationProcessor("org.projectlombok:lombok:1.18.30")
+
+	testCompileOnly("org.projectlombok:lombok:1.18.30")
+	testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 }
 
 tasks.withType<Test> {

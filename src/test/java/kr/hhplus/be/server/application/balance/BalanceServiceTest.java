@@ -58,8 +58,13 @@ public class BalanceServiceTest {
     @Test
     @DisplayName("잔액 충전 - 0 이하 금액 예외 발생")
     void 잔액_충전_실패_음수_예외발생(){
-        // expect
-        assertThatThrownBy(() -> balanceService.charge(new BalanceChargeCommand(1L, 0)))
+        // given
+        Long userId = 1L;
+        Balance balance = new Balance(userId, 0);
+        given(balanceRepository.findByUserId(userId)).willReturn(Optional.of(balance));
+        BalanceChargeCommand command = new BalanceChargeCommand(userId, 0);
+        // when & then
+        assertThatThrownBy(() -> balanceService.charge(command))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("충전 금액은 0보다 커야 합니다");
     }

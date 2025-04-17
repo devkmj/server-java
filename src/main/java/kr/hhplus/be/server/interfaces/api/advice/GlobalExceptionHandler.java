@@ -2,6 +2,7 @@ package kr.hhplus.be.server.interfaces.api.advice;
 
 import kr.hhplus.be.server.common.ApiResponse;
 import kr.hhplus.be.server.domain.balance.exception.BalanceNotFoundException;
+import kr.hhplus.be.server.domain.order.exception.InsufficientBalanceException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,5 +37,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body(ApiResponse.fail("요청이 잘못되었습니다", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ResponseEntity<ApiResponse<String>> handleBalanceNotFound(InsufficientBalanceException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(ApiResponse.error("잔액 부족", ex.getMessage()));
     }
 }

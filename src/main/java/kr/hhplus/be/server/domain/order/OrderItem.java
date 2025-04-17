@@ -42,6 +42,25 @@ public class OrderItem extends BaseTimeEntity {
         return qty * price;
     }
 
+    public Product getProduct() {
+        return product;
+    }
+
+    public Long getId(){
+        return id;
+    }
+
+    public Long getProductId() {
+        return product.getId();
+    }
+
+    public int getQty(){
+        return qty;
+    }
+
+    public int getPrice() {
+        return price;
+    }
     public void setOrder(Order order) {
         this.order = order;
     }

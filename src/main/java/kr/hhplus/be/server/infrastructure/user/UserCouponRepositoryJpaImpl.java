@@ -4,6 +4,7 @@ import kr.hhplus.be.server.domain.user.UserCoupon;
 import kr.hhplus.be.server.domain.user.UserCouponRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -17,16 +18,21 @@ public class UserCouponRepositoryJpaImpl implements UserCouponRepository {
 
     @Override
     public Optional<UserCoupon> findById(Long id) {
-        return Optional.empty();
+        return userCouponJpaRepository.findById(id);
     }
 
     @Override
-    public void save(UserCoupon userCoupon) {
-        userCouponJpaRepository.save(userCoupon);
+    public UserCoupon save(UserCoupon userCoupon) {
+        return userCouponJpaRepository.save(userCoupon);
     }
 
     @Override
     public boolean existsByUserIdAndCouponId(Long userId, Long couponId) {
         return userCouponJpaRepository.existsByUserIdAndCouponId(userId, couponId);
+    }
+
+    @Override
+    public List<UserCoupon> findAll() {
+        return userCouponJpaRepository.findAll();
     }
 }

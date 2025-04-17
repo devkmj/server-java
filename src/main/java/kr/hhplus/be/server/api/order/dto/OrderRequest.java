@@ -7,9 +7,10 @@ public class OrderRequest {
     private List<OrderItemRequest> items;
     private List<Long> userCouponIds;
 
-    public OrderRequest(Long userId, List<OrderItemRequest> items) {
+    public OrderRequest(Long userId, List<OrderItemRequest> items, List<Long> userCouponIds) {
         this.userId = userId;
         this.items = items;
+        this.userCouponIds = userCouponIds;
     }
 
     public Long getUserId() {

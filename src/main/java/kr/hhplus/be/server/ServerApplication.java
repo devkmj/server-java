@@ -21,16 +21,4 @@ public class ServerApplication {
 		SpringApplication.run(ServerApplication.class, args);
 	}
 
-	// ✅ 여기 안에 추가해야 돼!
-	public CommandLineRunner checkDB(DataSource dataSource) {
-		return args -> {
-			try (Connection conn = dataSource.getConnection()) {
-				System.out.println("✅ DB 연결 성공: " + conn.getMetaData().getURL());
-			} catch (Exception e) {
-				System.out.println("❌ DB 연결 실패");
-				e.printStackTrace();
-			}
-		};
-	}
-
 }

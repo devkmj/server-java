@@ -77,11 +77,11 @@ public class Order extends BaseTimeEntity {
     }
 
     public OrderStatus getStatus() {
-        return status;
+        return this.status;
     }
 
     public int getTotalPrice() {
-        return totalPrice;
+        return this.totalPrice;
     }
 
     public List<OrderItem> getOrderItems() {

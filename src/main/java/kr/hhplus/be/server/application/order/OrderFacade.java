@@ -57,16 +57,16 @@ public class OrderFacade {
         OrderSummary calcResult = orderCalculationService.calculateOrderItems(command.getItems(), balance);
 
         // 3. 쿠폰 할인 처리
-        List<UserCoupon> coupons = couponService.retrieveCoupons(command.getUserCouponIds());
-        int discountedTotal = couponService.applyCoupons(coupons, calcResult.getTotalPrice());
+        List<UserCoupon> userCoupons = couponService.retrieveCoupons(command.getUserCouponIds());
+        int discountedTotal = couponService.applyCoupons(userCoupons, calcResult.getTotalPrice());
 
         // 4. 상태 변경 (잔액 차감, 상품 재고 차감, 사용자 쿠폰 사욪 처리)
         balanceService.useBalance(balance, discountedTotal);
         productStockService.decreaseProductStocks(command.getItems());
-        userCouponService.useUserCoupons(coupons);
+        userCouponService.useUserCoupons(userCoupons);
 
         // 5. 주문 생성 및 저장 (도메인 객체 내 캡슐화)
-        Order order = orderService.createOrder(user, calcResult.getOrderItems(), coupons, discountedTotal);
+        Order order = orderService.createOrder(user, calcResult.getOrderItems(), userCoupons, discountedTotal);
 
         // 6. 응답 매핑
         return OrderMapper.toOrderDto(order);
