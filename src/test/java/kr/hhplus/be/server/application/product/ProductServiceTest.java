@@ -1,10 +1,6 @@
 package kr.hhplus.be.server.application.product;
 
-import kr.hhplus.be.server.application.product.dto.ProductResponse;
-import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.domain.product.ProductRepository;
-import kr.hhplus.be.server.domain.product.ProductStatus;
-import kr.hhplus.be.server.domain.product.ProductStockRepository;
+import kr.hhplus.be.server.domain.product.*;
 import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -157,4 +153,5 @@ public class ProductServiceTest {
         // then
         assertThat(result).isEqualTo(ProductResponse.from(product));
     }
+
 }

@@ -1,8 +1,9 @@
 package kr.hhplus.be.server.application.balance;
 
-import kr.hhplus.be.server.application.balance.dto.BalanceChargeCommand;
+import kr.hhplus.be.server.domain.balance.BalanceChargeCommand;
 import kr.hhplus.be.server.domain.balance.Balance;
 import kr.hhplus.be.server.domain.balance.BalanceRepository;
+import kr.hhplus.be.server.domain.balance.BalanceService;
 import kr.hhplus.be.server.domain.balance.exception.BalanceNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -84,4 +85,6 @@ public class BalanceServiceTest {
         // then
         assertThat(balance.getBalance()).isEqualTo(15000);
     }
+
+
 }

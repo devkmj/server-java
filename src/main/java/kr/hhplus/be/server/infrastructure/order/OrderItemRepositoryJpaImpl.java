@@ -1,8 +1,6 @@
 package kr.hhplus.be.server.infrastructure.order;
 
-import kr.hhplus.be.server.domain.order.Order;
-import kr.hhplus.be.server.domain.order.OrderItemRepository;
-import kr.hhplus.be.server.domain.order.OrderRepository;
+import kr.hhplus.be.server.domain.order.repository.OrderItemRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository

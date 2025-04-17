@@ -1,24 +1,26 @@
 package kr.hhplus.be.server.application.order;
 
-import kr.hhplus.be.server.application.coupon.CouponService;
-import kr.hhplus.be.server.application.product.ProductStockService;
+import kr.hhplus.be.server.domain.coupon.CouponService;
+import kr.hhplus.be.server.domain.order.command.OrderCommand;
+import kr.hhplus.be.server.domain.product.ProductStockService;
 import kr.hhplus.be.server.application.order.dto.*;
-import kr.hhplus.be.server.application.user.UserCouponService;
-import kr.hhplus.be.server.application.user.UserService;
-import kr.hhplus.be.server.application.balance.BalanceService;
-import kr.hhplus.be.server.application.product.ProductService;
-import kr.hhplus.be.server.domain.order.OrderValidator;
-import kr.hhplus.be.server.domain.order.Order;
+import kr.hhplus.be.server.domain.user.UserCouponService;
+import kr.hhplus.be.server.domain.user.UserService;
+import kr.hhplus.be.server.domain.balance.BalanceService;
+import kr.hhplus.be.server.domain.order.service.OrderService;
+import kr.hhplus.be.server.domain.order.model.Order;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserCoupon;
 import kr.hhplus.be.server.domain.balance.Balance;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class OrderFacade {
 
     private final UserService userService;
@@ -28,24 +30,6 @@ public class OrderFacade {
     private final OrderService orderService;
     private final OrderCalculationService orderCalculationService;
     private final CouponService couponService;
-
-    public OrderFacade(
-            UserService userService,
-            ProductStockService productStockService,
-            BalanceService balanceService,
-            UserCouponService userCouponService,
-            OrderService orderService,
-            OrderCalculationService orderCalculationService,
-            CouponService couponService
-    ) {
-        this.userService = userService;
-        this.productStockService = productStockService;
-        this.balanceService = balanceService;
-        this.userCouponService = userCouponService;
-        this.orderService = orderService;
-        this.orderCalculationService = orderCalculationService;
-        this.couponService = couponService;
-    }
 
     @Transactional
     public OrderDto order(OrderCommand command) {

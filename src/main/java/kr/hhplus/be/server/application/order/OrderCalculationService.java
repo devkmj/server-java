@@ -1,12 +1,11 @@
 package kr.hhplus.be.server.application.order;
 
-import kr.hhplus.be.server.application.product.ProductStockService;
-import kr.hhplus.be.server.application.order.dto.OrderItemCommand;
-import kr.hhplus.be.server.application.order.dto.OrderSummary;
-import kr.hhplus.be.server.application.product.ProductService;
+import kr.hhplus.be.server.domain.order.model.OrderItem;
+import kr.hhplus.be.server.domain.order.model.OrderValidator;
+import kr.hhplus.be.server.domain.order.command.OrderItemCommand;
+import kr.hhplus.be.server.domain.product.ProductStockService;
+import kr.hhplus.be.server.domain.product.ProductService;
 import kr.hhplus.be.server.domain.balance.Balance;
-import kr.hhplus.be.server.domain.order.OrderItem;
-import kr.hhplus.be.server.domain.order.OrderValidator;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductStock;
 import org.springframework.stereotype.Service;

@@ -1,8 +1,10 @@
 package kr.hhplus.be.server.interfaces.api.product;
 
-import kr.hhplus.be.server.application.product.ProductService;
-import kr.hhplus.be.server.application.product.dto.ProductResponse;
+import kr.hhplus.be.server.domain.product.ProductService;
+import kr.hhplus.be.server.application.product.PopularProductResponse;
+import kr.hhplus.be.server.application.product.ProductResponse;
 import kr.hhplus.be.server.common.ApiResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,14 +23,20 @@ public class ProductController {
     }
 
     @GetMapping
-    public ApiResponse<List<ProductResponse>> 전체_상품_조회() {
+    public ApiResponse<List<ProductResponse>> getAllProducts() {
         List<ProductResponse> products = productService.getAllProducts();
         return ApiResponse.success("전체 상품 조회 성공", products);
     }
 
     @GetMapping("/{productId}")
-    public ApiResponse<ProductResponse> 상품_상세_조회(@PathVariable Long productId) {
+    public ApiResponse<ProductResponse> getProductDetails(@PathVariable Long productId) {
         ProductResponse product = productService.getById(productId);
         return ApiResponse.success("상품 상세 조회 성공", product);
     }
+
+    @GetMapping("/products/popular")
+    public ResponseEntity<ApiResponse<List<PopularProductResponse>>> getPopularProducts() {
+        return ResponseEntity.ok(ApiResponse.success("인기 상품 조회 성공", productService.getTop5PopularProducts()));
+    }
+
 }

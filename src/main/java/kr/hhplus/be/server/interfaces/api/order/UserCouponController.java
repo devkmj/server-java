@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.interfaces.api.order;
 
-import kr.hhplus.be.server.application.user.UserCouponService;
-import kr.hhplus.be.server.domain.user.UserCouponRepository;
+import kr.hhplus.be.server.domain.user.UserCouponService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

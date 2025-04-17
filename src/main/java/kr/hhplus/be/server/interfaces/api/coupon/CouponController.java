@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.interfaces.api.coupon;
 
-import kr.hhplus.be.server.application.coupon.CouponService;
-import kr.hhplus.be.server.application.coupon.dto.IssueCouponCommand;
+import kr.hhplus.be.server.domain.coupon.CouponService;
+import kr.hhplus.be.server.domain.coupon.IssueCouponCommand;
 import kr.hhplus.be.server.common.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

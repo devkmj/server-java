@@ -1,6 +1,8 @@
 package kr.hhplus.be.server.application.order.dto;
 
-import kr.hhplus.be.server.domain.order.Order;
+import kr.hhplus.be.server.application.order.OrderDto;
+import kr.hhplus.be.server.application.order.OrderItemDto;
+import kr.hhplus.be.server.domain.order.model.Order;
 
 import java.util.List;
 import java.util.stream.Collectors;
