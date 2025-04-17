@@ -35,4 +35,9 @@ public class UserCouponRepositoryJpaImpl implements UserCouponRepository {
     public List<UserCoupon> findAll() {
         return userCouponJpaRepository.findAll();
     }
+
+    @Override
+    public void deleteAll() {
+        userCouponJpaRepository.deleteAll();
+    }
 }

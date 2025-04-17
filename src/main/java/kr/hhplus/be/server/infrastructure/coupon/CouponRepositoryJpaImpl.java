@@ -17,7 +17,7 @@ public class CouponRepositoryJpaImpl implements CouponRepository {
 
     @Override
     public Optional<Coupon> findById(Long id) {
-        return Optional.empty();
+        return couponJpaRepository.findById(id);
     }
 
     @Override
@@ -26,7 +26,9 @@ public class CouponRepositoryJpaImpl implements CouponRepository {
     }
 
     @Override
-    public boolean existsByUserIdAndCouponId(Long userId, Long couponId) {
-        return false;
+    public void deleteAll() {
+        couponJpaRepository.deleteAll();
     }
+
+
 }

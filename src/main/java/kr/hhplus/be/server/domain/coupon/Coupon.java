@@ -62,6 +62,9 @@ public class Coupon extends BaseTimeEntity {
         if (issuedCount >= totalCount) {
             throw new IllegalStateException("발급 가능 수량을 초과했습니다");
         }
+        if(!isValidNow()){
+            throw new IllegalStateException("유효하지 않은 쿠폰입니다");
+        }
         this.issuedCount += 1;
 
         return new UserCoupon(user.getId(), this);

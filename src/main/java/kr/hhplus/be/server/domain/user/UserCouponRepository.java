@@ -14,4 +14,6 @@ public interface UserCouponRepository {
     boolean existsByUserIdAndCouponId(Long userId, Long couponId);
 
     List<UserCoupon> findAll();
+
+    void deleteAll();
 }

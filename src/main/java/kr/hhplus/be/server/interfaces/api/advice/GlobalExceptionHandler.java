@@ -52,4 +52,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error("상품 조회 실패", ex.getMessage()));
     }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<String>> handleBalanceNotFound(IllegalStateException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(ApiResponse.error("이미 발급 받은 쿠폰", ex.getMessage()));
+    }
 }

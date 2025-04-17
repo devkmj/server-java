@@ -35,4 +35,9 @@ public class UserRepositoryJpaImpl implements UserRepository {
     public List<User> findAll() {
         return userJpaRepository.findAll();
     }
+
+    @Override
+    public void deleteAll() {
+        userJpaRepository.deleteAll();
+    }
 }

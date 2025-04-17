@@ -51,7 +51,7 @@ public class CouponService {
         userCouponRepository.save(userCoupon);
     }
 
-    public List<UserCoupon> retrieveCoupons(List<Long> userCouponIds) { 
+    public List<UserCoupon> retrieveCoupons(List<Long> userCouponIds) {
         if (userCouponIds == null) {
             return Collections.emptyList();
         }

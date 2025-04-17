@@ -13,8 +13,8 @@ public class UserCoupon extends BaseTimeEntity {
 
     private Long userId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id", nullable = false)
     private Coupon coupon;
 
     private boolean used;
