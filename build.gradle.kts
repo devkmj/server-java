@@ -50,7 +50,7 @@ dependencies {
 	implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
 
 	// Database for test
-	testImplementation("com.h2database:h2")
+	testImplementation("com.h2database:h2") 
 }
 
 tasks.withType<Test> {
