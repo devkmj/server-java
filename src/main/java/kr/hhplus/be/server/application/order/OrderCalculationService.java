@@ -6,8 +6,8 @@ import kr.hhplus.be.server.domain.order.command.OrderItemCommand;
 import kr.hhplus.be.server.domain.product.ProductStockService;
 import kr.hhplus.be.server.domain.product.ProductService;
 import kr.hhplus.be.server.domain.balance.Balance;
-import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.domain.product.ProductStock;
+import kr.hhplus.be.server.domain.product.model.Product;
+import kr.hhplus.be.server.domain.product.model.ProductStock;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

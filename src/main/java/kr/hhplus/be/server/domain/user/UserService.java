@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.domain.user;
 
+import kr.hhplus.be.server.domain.user.model.User;
+import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 @Service

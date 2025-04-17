@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.domain.order.service;
+package kr.hhplus.be.server.domain.order;
 
 import kr.hhplus.be.server.domain.order.repository.OrderItemRepository;
 import org.springframework.stereotype.Service;

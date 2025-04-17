@@ -1,6 +1,6 @@
-package kr.hhplus.be.server.domain.product;
+package kr.hhplus.be.server.domain.product.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import kr.hhplus.be.server.domain.product.model.Product;
 
 import java.util.List;
 import java.util.Optional;

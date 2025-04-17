@@ -2,8 +2,12 @@ package kr.hhplus.be.server.domain.product;
 
 import kr.hhplus.be.server.application.product.PopularProductResponse;
 import kr.hhplus.be.server.application.product.ProductResponse;
-import org.springframework.stereotype.Service;
 import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;
+import kr.hhplus.be.server.domain.product.model.Product;
+import kr.hhplus.be.server.domain.product.repository.ProductQueryRepository;
+import kr.hhplus.be.server.domain.product.repository.ProductRepository;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 

@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.application.product;
 
-import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.domain.product.ProductStatus;
+import kr.hhplus.be.server.domain.product.model.Product;
+import kr.hhplus.be.server.domain.product.model.ProductStatus;
 
 public record ProductResponse(
         Long id,

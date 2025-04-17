@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.domain.product;
+package kr.hhplus.be.server.domain.product.model;
 
 import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.BaseTimeEntity;

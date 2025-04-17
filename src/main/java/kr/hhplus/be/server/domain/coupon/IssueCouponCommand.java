@@ -1,5 +1,8 @@
 package kr.hhplus.be.server.domain.coupon;
 
+import lombok.Getter;
+
+@Getter
 public class IssueCouponCommand {
 
     private Long userId;
@@ -16,11 +19,4 @@ public class IssueCouponCommand {
         this.couponId = couponId;
     }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public Long getCouponId() {
-        return couponId;
-    }
 }

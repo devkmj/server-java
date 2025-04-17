@@ -1,10 +1,10 @@
-package kr.hhplus.be.server.domain.order.service;
+package kr.hhplus.be.server.domain.order;
 
 import kr.hhplus.be.server.domain.order.model.Order;
 import kr.hhplus.be.server.domain.order.model.OrderItem;
 import kr.hhplus.be.server.domain.order.repository.OrderRepository;
-import kr.hhplus.be.server.domain.user.User;
-import kr.hhplus.be.server.domain.user.UserCoupon;
+import kr.hhplus.be.server.domain.user.model.User;
+import kr.hhplus.be.server.domain.user.model.UserCoupon;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

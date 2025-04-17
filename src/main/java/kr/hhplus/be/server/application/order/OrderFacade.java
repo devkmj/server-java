@@ -7,10 +7,10 @@ import kr.hhplus.be.server.application.order.dto.*;
 import kr.hhplus.be.server.domain.user.UserCouponService;
 import kr.hhplus.be.server.domain.user.UserService;
 import kr.hhplus.be.server.domain.balance.BalanceService;
-import kr.hhplus.be.server.domain.order.service.OrderService;
+import kr.hhplus.be.server.domain.order.OrderService;
 import kr.hhplus.be.server.domain.order.model.Order;
-import kr.hhplus.be.server.domain.user.User;
-import kr.hhplus.be.server.domain.user.UserCoupon;
+import kr.hhplus.be.server.domain.user.model.User;
+import kr.hhplus.be.server.domain.user.model.UserCoupon;
 import kr.hhplus.be.server.domain.balance.Balance;
 
 import lombok.RequiredArgsConstructor;

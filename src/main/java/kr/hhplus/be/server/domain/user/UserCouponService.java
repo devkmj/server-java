@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.domain.user;
 
+import kr.hhplus.be.server.domain.user.model.UserCoupon;
+import kr.hhplus.be.server.domain.user.repository.UserCouponRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

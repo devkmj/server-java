@@ -1,7 +1,6 @@
-package kr.hhplus.be.server.domain.user;
+package kr.hhplus.be.server.domain.user.repository;
 
-import kr.hhplus.be.server.domain.balance.Balance;
-import org.springframework.data.jpa.repository.JpaRepository;
+import kr.hhplus.be.server.domain.user.model.User;
 
 import java.util.List;
 import java.util.Optional;

@@ -2,10 +2,10 @@ package kr.hhplus.be.server.domain.order.model;
 
 import kr.hhplus.be.server.domain.balance.Balance;
 import kr.hhplus.be.server.domain.order.exception.InsufficientBalanceException;
-import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.domain.product.ProductStatus;
-import kr.hhplus.be.server.domain.product.ProductStock;
-import kr.hhplus.be.server.domain.user.UserCoupon;
+import kr.hhplus.be.server.domain.product.model.Product;
+import kr.hhplus.be.server.domain.product.model.ProductStatus;
+import kr.hhplus.be.server.domain.product.model.ProductStock;
+import kr.hhplus.be.server.domain.user.model.UserCoupon;
 import org.springframework.stereotype.Component;
 
 @Component

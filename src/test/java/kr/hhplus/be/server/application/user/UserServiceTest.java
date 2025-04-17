@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.application.user;
 
 import kr.hhplus.be.server.domain.user.UserService;
-import kr.hhplus.be.server.domain.user.UserRepository;
+import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.mockito.Mockito.*;

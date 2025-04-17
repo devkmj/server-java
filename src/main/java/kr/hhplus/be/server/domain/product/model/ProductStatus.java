@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.domain.product;
+package kr.hhplus.be.server.domain.product.model;
 
 public enum ProductStatus{
     AVAILABLE,       // 판매가능

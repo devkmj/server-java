@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.application.order;
 
-import kr.hhplus.be.server.domain.user.UserCoupon;
+import kr.hhplus.be.server.domain.user.model.UserCoupon;
 
 import java.time.LocalDateTime;
 import java.util.List;

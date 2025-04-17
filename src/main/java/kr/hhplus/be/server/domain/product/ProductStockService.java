@@ -1,6 +1,8 @@
 package kr.hhplus.be.server.domain.product;
 
 import kr.hhplus.be.server.domain.order.command.OrderItemCommand;
+import kr.hhplus.be.server.domain.product.model.ProductStock;
+import kr.hhplus.be.server.domain.product.repository.ProductStockRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

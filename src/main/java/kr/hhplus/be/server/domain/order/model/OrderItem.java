@@ -2,7 +2,7 @@ package kr.hhplus.be.server.domain.order.model;
 
 import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.BaseTimeEntity;
-import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.product.model.Product;
 
 import java.time.LocalDateTime;
 
