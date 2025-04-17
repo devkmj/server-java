@@ -3,7 +3,7 @@ package kr.hhplus.be.server.infrastructure.product;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import kr.hhplus.be.server.application.product.PopularProductResponse;
-import kr.hhplus.be.server.domain.product.ProductQueryRepository;
+import kr.hhplus.be.server.domain.product.repository.ProductQueryRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -15,11 +15,10 @@ public class ProductQueryRepositoryImpl implements ProductQueryRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
-
     @Override
     public List<PopularProductResponse> findTop5PopularProducts() {
         return entityManager.createQuery("""
-                SELECT new kr.hhplus.be.server.application.product.dto.PopularProductResponse(
+                SELECT new kr.hhplus.be.server.application.product.PopularProductResponse(
                     p.id, p.name, p.price, SUM(oi.qty)
                 )
                 FROM OrderItem oi

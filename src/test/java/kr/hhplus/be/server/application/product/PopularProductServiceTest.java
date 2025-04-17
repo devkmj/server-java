@@ -4,20 +4,25 @@ import kr.hhplus.be.server.domain.order.model.Order;
 import kr.hhplus.be.server.domain.order.model.OrderItem;
 import kr.hhplus.be.server.domain.order.repository.OrderItemRepository;
 import kr.hhplus.be.server.domain.order.repository.OrderRepository;
-import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.domain.product.ProductQueryRepository;
-import kr.hhplus.be.server.domain.product.ProductRepository;
-import kr.hhplus.be.server.domain.product.ProductStatus;
-import kr.hhplus.be.server.domain.user.User;
-import kr.hhplus.be.server.domain.user.UserRepository;
+import kr.hhplus.be.server.domain.product.model.Product;
+import kr.hhplus.be.server.domain.product.repository.ProductQueryRepository;
+import kr.hhplus.be.server.domain.product.repository.ProductRepository;
+import kr.hhplus.be.server.domain.product.model.ProductStatus;
+import kr.hhplus.be.server.domain.user.model.User;
+import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
-@DataJpaTest
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
+@SpringBootTest
+@ActiveProfiles("test")
 @DisplayName("ProductQueryRepository 테스트")
 public class PopularProductServiceTest {
 
@@ -41,31 +46,34 @@ public class PopularProductServiceTest {
     void 인기상품_조회() {
         // given
         Product product1 = productRepository.save(new Product("product1", 10000, ProductStatus.AVAILABLE));
-        Product product2 = productRepository.save(new Product("product2", 10000, ProductStatus.AVAILABLE));
-        Product product3 = productRepository.save(new Product("product3", 10000, ProductStatus.AVAILABLE));
-        Product product4 = productRepository.save(new Product("product4", 10000, ProductStatus.AVAILABLE));
-        Product product5 = productRepository.save(new Product("product5", 10000, ProductStatus.AVAILABLE));
-        Product product6 = productRepository.save(new Product("product6", 10000, ProductStatus.AVAILABLE));
+        Product product2 = productRepository.save(new Product("product2", 10020, ProductStatus.AVAILABLE));
+        Product product3 = productRepository.save(new Product("product3", 1300, ProductStatus.AVAILABLE));
+        Product product4 = productRepository.save(new Product("product4", 40000, ProductStatus.AVAILABLE));
+        Product product5 = productRepository.save(new Product("product5", 59000, ProductStatus.AVAILABLE));
+        Product product6 = productRepository.save(new Product("product6", 8200, ProductStatus.AVAILABLE));
 
         User user = userRepository.save(new User("user"));
 
-        saveOrder(user, product1, 100);
-        saveOrder(user, product1, 101);
-        saveOrder(user, product1, 102);
-        saveOrder(user, product1, 103);
-        saveOrder(user, product1, 104);
-        saveOrder(user, product1, 105);
-        saveOrder(user, product1, 106);
+        saveOrder(user, product1, 130);
+        saveOrder(user, product2, 121);
+        saveOrder(user, product3, 22);
+        saveOrder(user, product4, 803);
+        saveOrder(user, product5, 14);
 
         // when
-        List<PopularProductResponse> result= productQueryRepository.findTop5PopularProducts();
+        List<PopularProductResponse> topProducts = productQueryRepository.findTop5PopularProducts();
 
-        result.forEach(System.out::println);
         // then
+        assertThat(topProducts).hasSize(5);
+        List<Long> resultIds = topProducts.stream()
+                .map(PopularProductResponse::productId)
+                .toList();
+
+        assertThat(resultIds).containsExactly(product4.getId(), product1.getId(), product2.getId(), product3.getId(), product5.getId());
     }
 
     private void saveOrder(User user, Product product, int qty) {
-        OrderItem item = new OrderItem(product,100 , product.getPrice());
+        OrderItem item = new OrderItem(product,qty , product.getPrice());
         Order order = Order.create(user, null, List.of(item), product.getPrice());
         orderRepository.save(order);
     }

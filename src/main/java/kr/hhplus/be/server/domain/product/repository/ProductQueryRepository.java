@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.domain.product;
+package kr.hhplus.be.server.domain.product.repository;
 
 import kr.hhplus.be.server.application.product.PopularProductResponse;
 
