@@ -24,7 +24,5 @@ public class OrderService {
         Order order = Order.create(user, coupons, items, totalPrice);
         return orderRepository.save(order);
     }
-
-    public void applyPaymentAndInventoryUpdates(Balance balance, int discountedTotal, List<OrderItemCommand> items, List<UserCoupon> coupons) {
-    }
+ 
 }

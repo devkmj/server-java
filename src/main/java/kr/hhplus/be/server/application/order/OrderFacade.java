@@ -30,14 +30,11 @@ public class OrderFacade {
     private final CouponService couponService;
 
     public OrderFacade(
-            OrderValidator orderValidator,
             UserService userService,
-            ProductService productService,
             ProductStockService productStockService,
             BalanceService balanceService,
             UserCouponService userCouponService,
             OrderService orderService,
-            OrderItemService orderItemService,
             OrderCalculationService orderCalculationService,
             CouponService couponService
     ) {

@@ -8,6 +8,13 @@ import java.util.Optional;
 
 @Repository
 public class UserCouponRepositoryJpaImpl implements UserCouponRepository {
+
+    private final UserCouponJpaRepository userCouponJpaRepository;
+
+    public UserCouponRepositoryJpaImpl(UserCouponJpaRepository userCouponJpaRepository) {
+        this.userCouponJpaRepository = userCouponJpaRepository;
+    }
+
     @Override
     public Optional<UserCoupon> findById(Long id) {
         return Optional.empty();
@@ -15,11 +22,11 @@ public class UserCouponRepositoryJpaImpl implements UserCouponRepository {
 
     @Override
     public void save(UserCoupon userCoupon) {
-
+        userCouponJpaRepository.save(userCoupon);
     }
 
     @Override
     public boolean existsByUserIdAndCouponId(Long userId, Long couponId) {
-        return false;
+        return userCouponJpaRepository.existsByUserIdAndCouponId(userId, couponId);
     }
 }

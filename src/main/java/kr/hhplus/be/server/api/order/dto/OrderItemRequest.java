@@ -5,10 +5,10 @@ public class OrderItemRequest {
     private int qty;
     private int price;
 
-    public OrderItemRequest(Long productId, int qty) {
+    public OrderItemRequest(Long productId, int qty, int price) {
         this.productId = productId;
         this.qty = qty;
-        this.price = qty * qty;
+        this.price = qty * price;
     }
 
     public Long getProductId() {

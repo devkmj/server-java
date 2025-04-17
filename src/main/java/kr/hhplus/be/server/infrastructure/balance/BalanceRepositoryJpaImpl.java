@@ -5,6 +5,7 @@ import kr.hhplus.be.server.domain.balance.BalanceRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+
 @Repository
 public class BalanceRepositoryJpaImpl implements BalanceRepository{
 

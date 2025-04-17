@@ -2,7 +2,6 @@ package kr.hhplus.be.server.infrastructure.product;
 
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -25,5 +24,10 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
     @Override
     public Optional<Product> findById(Long id) {
         return productJpaRepository.findById(id);
+    }
+
+    @Override
+    public Product save(Product product) {
+        return productJpaRepository.save(product);
     }
 }
