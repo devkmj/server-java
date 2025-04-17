@@ -1,16 +1,16 @@
 package kr.hhplus.be.server.interfaces.api.balance;
 
+import jakarta.validation.Valid;
 import kr.hhplus.be.server.application.balance.BalanceService;
+import kr.hhplus.be.server.application.balance.dto.BalanceChargeCommand;
 import kr.hhplus.be.server.application.balance.dto.BalanceResponse;
+import kr.hhplus.be.server.common.ApiResponse;
 import kr.hhplus.be.server.domain.balance.Balance;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/balance")
+@RequestMapping("/balances")
 public class BalanceController {
 
     private final BalanceService balanceService;
@@ -20,8 +20,14 @@ public class BalanceController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<BalanceResponse> getBalance(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse<BalanceResponse>> getBalance(@PathVariable Long userId) {
         BalanceResponse response = balanceService.getBalance(userId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success("잔액 조회 성공", response));
+    }
+
+    @PostMapping("/charge")
+    public ResponseEntity<ApiResponse<BalanceResponse>> charge(@Valid @RequestBody BalanceChargeCommand command) {
+        BalanceResponse response = balanceService.charge(command);
+        return ResponseEntity.ok(ApiResponse.success("잔액 충전 성공", response));
     }
 }

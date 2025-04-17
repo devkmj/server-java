@@ -9,7 +9,7 @@ public record BalanceResponse(Long userId, int balance) {
         this.balance = balance;
     }
 
-    public static BalanceResponse from(Balance balance) {
+    public static BalanceResponse from(Balance balance) { 
         return new BalanceResponse(balance.getUserId(), balance.getBalance());
     }
 
