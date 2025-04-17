@@ -19,10 +19,16 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -30,7 +36,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Rollback
-@Transactional
 @DisplayName("Coupon 통합 테스트")
 public class CouponIntegrationTest {
 
@@ -118,5 +123,54 @@ public class CouponIntegrationTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.data").value("유효하지 않은 쿠폰입니다"));
+    }
+
+    @Test
+    @DisplayName("동시 쿠폰 발급 요청 시 하나만 성공해야 한다")
+    void 동시_쿠폰_발급_테스트() throws InterruptedException {
+        // given
+        Long userId = user.getId();
+        Coupon Limitedcoupon = couponRepository.save(new Coupon(10, 100, 99,
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1)));
+
+        IssueCouponCommand command = new IssueCouponCommand(
+                userId,
+                Limitedcoupon.getId()
+        );
+
+        int threadCount = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        AtomicInteger successCount = new AtomicInteger(0);
+
+        // when
+        for (int i = 0; i < threadCount; i++) {
+            executorService.submit(() -> {
+                try {
+                    mockMvc.perform(post("/coupons/issue")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(command)))
+                            .andExpect(result -> {
+                                if (result.getResponse().getStatus() == 200) {
+                                    successCount.incrementAndGet();
+                                } else {
+                                    System.out.println(result.getResponse().getContentAsString());
+                                }
+                            });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        System.out.println("성공한 쿠폰 발급 수: " + successCount.get());
+        assertThat(successCount.get()).isEqualTo(1);
     }
 }
