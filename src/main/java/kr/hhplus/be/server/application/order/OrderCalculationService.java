@@ -51,6 +51,8 @@ public class OrderCalculationService {
 
             // 주문 아이템 엔티티 생성
             OrderItem orderItem = new OrderItem(product, qty, product.getPrice());
+            // 인기 상품 요약 테이블 업데이트
+            productService.updateProductSalesSummary(product, qty);
             orderItems.add(orderItem);
         }
 

@@ -5,11 +5,14 @@ import kr.hhplus.be.server.domain.order.model.OrderItem;
 import kr.hhplus.be.server.domain.order.repository.OrderItemRepository;
 import kr.hhplus.be.server.domain.order.repository.OrderRepository;
 import kr.hhplus.be.server.domain.product.model.Product;
+import kr.hhplus.be.server.domain.product.model.ProductSalesSummary;
 import kr.hhplus.be.server.domain.product.repository.ProductQueryRepository;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import kr.hhplus.be.server.domain.product.model.ProductStatus;
+import kr.hhplus.be.server.domain.product.repository.ProductSalesSummaryRepository;
 import kr.hhplus.be.server.domain.user.model.User;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -31,6 +35,9 @@ public class PopularProductServiceTest {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ProductSalesSummaryRepository productSalesSummaryRepository;
 
     @Autowired
     private OrderRepository orderRepository;
@@ -76,5 +83,21 @@ public class PopularProductServiceTest {
         OrderItem item = new OrderItem(product,qty , product.getPrice());
         Order order = Order.create(user, null, List.of(item), product.getPrice());
         orderRepository.save(order);
+    }
+
+    @Test
+    @DisplayName("인기 상품 조회 - Summary 테이블 기반")
+    void 인기_상품_요약_테이블_조회() {
+        // given
+        Product product = productRepository.save(new Product("summary-test", 10000, ProductStatus.AVAILABLE));
+        productSalesSummaryRepository.save(new ProductSalesSummary(product.getId(), 500L, LocalDateTime.now())); // 500개 판매된 상품
+
+        // when
+        List<PopularProductResponse> result = productQueryRepository.findTop5PopularProducts();
+        System.out.println("조회된 개수 = " + result.size());
+
+        // then
+        assertThat(result).isNotEmpty();
+        assertThat(result.get(0).productId()).isEqualTo(product.getId());
     }
 }
