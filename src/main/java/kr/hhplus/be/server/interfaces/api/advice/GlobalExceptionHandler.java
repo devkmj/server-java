@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.interfaces.api.advice;
 
-import kr.hhplus.be.server.common.ApiResponse;
+import kr.hhplus.be.server.interfaces.api.common.response.ApiResponse;
 import kr.hhplus.be.server.domain.balance.exception.BalanceNotFoundException;
 import kr.hhplus.be.server.domain.order.exception.InsufficientBalanceException;
 import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;

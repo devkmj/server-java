@@ -1,23 +1,15 @@
 package kr.hhplus.be.server.bootstrap;
 
-import kr.hhplus.be.server.domain.order.model.Order;
-import kr.hhplus.be.server.domain.order.model.OrderItem;
 import kr.hhplus.be.server.domain.order.repository.OrderItemRepository;
 import kr.hhplus.be.server.domain.order.repository.OrderRepository;
-import kr.hhplus.be.server.domain.product.model.Product;
-import kr.hhplus.be.server.domain.product.model.ProductSalesSummary;
-import kr.hhplus.be.server.domain.product.model.ProductStatus;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import kr.hhplus.be.server.domain.product.repository.ProductSalesSummaryRepository;
-import kr.hhplus.be.server.domain.user.model.User;
+import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor

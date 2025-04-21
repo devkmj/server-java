@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.domain.user.repository;
 
-import kr.hhplus.be.server.domain.user.model.UserCoupon;
+import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 
 import java.util.List;
 import java.util.Optional;

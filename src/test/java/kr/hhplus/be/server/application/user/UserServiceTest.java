@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.application.user;
 
-import kr.hhplus.be.server.domain.user.UserService;
+import kr.hhplus.be.server.domain.user.service.UserService;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 

@@ -1,9 +1,9 @@
 package kr.hhplus.be.server.interfaces.api.product;
 
-import kr.hhplus.be.server.domain.product.ProductService;
-import kr.hhplus.be.server.application.product.PopularProductResponse;
-import kr.hhplus.be.server.application.product.ProductResponse;
-import kr.hhplus.be.server.common.ApiResponse;
+import kr.hhplus.be.server.domain.product.service.ProductService;
+import kr.hhplus.be.server.interfaces.api.product.response.PopularProductResponse;
+import kr.hhplus.be.server.interfaces.api.product.response.ProductResponse;
+import kr.hhplus.be.server.interfaces.api.common.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -1,12 +1,12 @@
 package kr.hhplus.be.server.application.order;
 
-import kr.hhplus.be.server.domain.order.model.Order;
-import kr.hhplus.be.server.domain.order.model.OrderItem;
+import kr.hhplus.be.server.domain.order.entity.Order;
+import kr.hhplus.be.server.domain.order.entity.OrderItem;
 import kr.hhplus.be.server.domain.order.repository.OrderRepository;
-import kr.hhplus.be.server.domain.order.OrderService;
-import kr.hhplus.be.server.domain.product.model.Product;
-import kr.hhplus.be.server.domain.product.model.ProductStatus;
-import kr.hhplus.be.server.domain.user.model.User;
+import kr.hhplus.be.server.domain.order.service.OrderService;
+import kr.hhplus.be.server.domain.product.entity.Product;
+import kr.hhplus.be.server.domain.product.entity.ProductStatus;
+import kr.hhplus.be.server.domain.user.entity.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.domain.order.command;
 
-import kr.hhplus.be.server.api.order.OrderRequest;
+import kr.hhplus.be.server.interfaces.api.order.request.OrderRequest;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class OrderCommand {
         command.userId = request.getUserId();
         command.userCouponIds = request.getUserCouponIds();
         command.items = request.getItems().stream()
-                .map(item -> new OrderItemCommand(item.getProductId(), item.getQty()))
+                .map(item -> new OrderItemCommand(item.productId(), item.qty()))
                 .toList();
         return command;
     }

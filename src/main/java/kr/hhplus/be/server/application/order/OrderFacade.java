@@ -1,17 +1,17 @@
 package kr.hhplus.be.server.application.order;
 
-import kr.hhplus.be.server.domain.coupon.CouponService;
+import kr.hhplus.be.server.application.order.model.OrderSummary;
+import kr.hhplus.be.server.domain.coupon.service.CouponService;
 import kr.hhplus.be.server.domain.order.command.OrderCommand;
-import kr.hhplus.be.server.domain.product.ProductStockService;
-import kr.hhplus.be.server.application.order.dto.*;
-import kr.hhplus.be.server.domain.user.UserCouponService;
-import kr.hhplus.be.server.domain.user.UserService;
-import kr.hhplus.be.server.domain.balance.BalanceService;
-import kr.hhplus.be.server.domain.order.OrderService;
-import kr.hhplus.be.server.domain.order.model.Order;
-import kr.hhplus.be.server.domain.user.model.User;
-import kr.hhplus.be.server.domain.user.model.UserCoupon;
-import kr.hhplus.be.server.domain.balance.Balance;
+import kr.hhplus.be.server.domain.product.service.ProductStockService;
+import kr.hhplus.be.server.domain.user.service.UserCouponService;
+import kr.hhplus.be.server.domain.user.service.UserService;
+import kr.hhplus.be.server.domain.balance.service.BalanceService;
+import kr.hhplus.be.server.domain.order.service.OrderService;
+import kr.hhplus.be.server.domain.order.entity.Order;
+import kr.hhplus.be.server.domain.user.entity.User;
+import kr.hhplus.be.server.domain.user.entity.UserCoupon;
+import kr.hhplus.be.server.domain.balance.entity.Balance;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -32,7 +32,7 @@ public class OrderFacade {
     private final CouponService couponService;
 
     @Transactional
-    public OrderDto order(OrderCommand command) {
+    public Order order(OrderCommand command) {
         // 1. 입력 검증 및 초기 데이터 조회
         User user = userService.findByUserId(command.getUserId());
         Balance balance = balanceService.findByUserId(command.getUserId());
@@ -49,11 +49,8 @@ public class OrderFacade {
         productStockService.decreaseProductStocks(command.getItems());
         userCouponService.useUserCoupons(userCoupons);
 
-        // 5. 주문 생성 및 저장 (도메인 객체 내 캡슐화)
-        Order order = orderService.createOrder(user, calcResult.getOrderItems(), userCoupons, discountedTotal);
-
-        // 6. 응답 매핑
-        return OrderMapper.toOrderDto(order);
+        // 5. 주문 생성 및 저장
+        return orderService.createOrder(user, calcResult.getOrderItems(), userCoupons, discountedTotal);
     }
 
 }

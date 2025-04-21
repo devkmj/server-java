@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.domain.order.repository;
 
-import kr.hhplus.be.server.domain.order.model.Order;
+import kr.hhplus.be.server.domain.order.entity.Order;
 
 import java.util.Optional;
 

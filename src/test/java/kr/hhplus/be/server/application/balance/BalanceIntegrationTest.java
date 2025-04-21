@@ -1,17 +1,17 @@
 package kr.hhplus.be.server.application.balance;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.hhplus.be.server.api.order.OrderItemRequest;
-import kr.hhplus.be.server.api.order.OrderRequest;
-import kr.hhplus.be.server.domain.balance.BalanceChargeCommand;
-import kr.hhplus.be.server.domain.balance.Balance;
-import kr.hhplus.be.server.domain.balance.BalanceRepository;
-import kr.hhplus.be.server.domain.product.model.Product;
-import kr.hhplus.be.server.domain.product.model.ProductStatus;
-import kr.hhplus.be.server.domain.product.model.ProductStock;
+import kr.hhplus.be.server.interfaces.api.order.request.OrderItemRequest;
+import kr.hhplus.be.server.interfaces.api.order.request.OrderRequest;
+import kr.hhplus.be.server.domain.balance.command.BalanceChargeCommand;
+import kr.hhplus.be.server.domain.balance.entity.Balance;
+import kr.hhplus.be.server.domain.balance.repository.BalanceRepository;
+import kr.hhplus.be.server.domain.product.entity.Product;
+import kr.hhplus.be.server.domain.product.entity.ProductStatus;
+import kr.hhplus.be.server.domain.product.entity.ProductStock;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import kr.hhplus.be.server.domain.product.repository.ProductStockRepository;
-import kr.hhplus.be.server.domain.user.model.User;
+import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

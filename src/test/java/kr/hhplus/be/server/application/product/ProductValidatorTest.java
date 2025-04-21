@@ -1,11 +1,11 @@
 package kr.hhplus.be.server.application.product;
 
-import kr.hhplus.be.server.domain.product.model.ProductStatus;
+import kr.hhplus.be.server.domain.product.entity.ProductStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import kr.hhplus.be.server.domain.product.model.ProductValidator;
+import kr.hhplus.be.server.domain.product.validator.ProductValidator;
 
 @DisplayName("ProductValidator 유효성 검사 테스트")
 public class ProductValidatorTest {

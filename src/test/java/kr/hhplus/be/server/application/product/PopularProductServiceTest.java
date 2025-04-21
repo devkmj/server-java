@@ -1,22 +1,21 @@
 package kr.hhplus.be.server.application.product;
 
-import kr.hhplus.be.server.domain.order.model.Order;
-import kr.hhplus.be.server.domain.order.model.OrderItem;
+import kr.hhplus.be.server.domain.order.entity.Order;
+import kr.hhplus.be.server.domain.order.entity.OrderItem;
 import kr.hhplus.be.server.domain.order.repository.OrderItemRepository;
 import kr.hhplus.be.server.domain.order.repository.OrderRepository;
-import kr.hhplus.be.server.domain.product.model.Product;
-import kr.hhplus.be.server.domain.product.model.ProductSalesSummary;
+import kr.hhplus.be.server.domain.product.entity.Product;
+import kr.hhplus.be.server.domain.product.entity.ProductSalesSummary;
 import kr.hhplus.be.server.domain.product.repository.ProductQueryRepository;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
-import kr.hhplus.be.server.domain.product.model.ProductStatus;
+import kr.hhplus.be.server.domain.product.entity.ProductStatus;
 import kr.hhplus.be.server.domain.product.repository.ProductSalesSummaryRepository;
-import kr.hhplus.be.server.domain.user.model.User;
+import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
+import kr.hhplus.be.server.interfaces.api.product.response.PopularProductResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 

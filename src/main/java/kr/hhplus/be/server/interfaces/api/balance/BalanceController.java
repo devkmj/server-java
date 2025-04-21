@@ -1,10 +1,10 @@
 package kr.hhplus.be.server.interfaces.api.balance;
 
 import jakarta.validation.Valid;
-import kr.hhplus.be.server.domain.balance.BalanceService;
-import kr.hhplus.be.server.domain.balance.BalanceChargeCommand;
-import kr.hhplus.be.server.application.balance.BalanceResponse;
-import kr.hhplus.be.server.common.ApiResponse;
+import kr.hhplus.be.server.domain.balance.service.BalanceService;
+import kr.hhplus.be.server.domain.balance.command.BalanceChargeCommand;
+import kr.hhplus.be.server.interfaces.api.balance.response.BalanceResponse;
+import kr.hhplus.be.server.interfaces.api.common.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

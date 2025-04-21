@@ -1,19 +1,19 @@
 package kr.hhplus.be.server.application.order;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.hhplus.be.server.api.order.OrderItemRequest;
-import kr.hhplus.be.server.api.order.OrderRequest;
-import kr.hhplus.be.server.domain.balance.Balance;
-import kr.hhplus.be.server.domain.balance.BalanceRepository;
-import kr.hhplus.be.server.domain.coupon.Coupon;
-import kr.hhplus.be.server.domain.coupon.CouponRepository;
-import kr.hhplus.be.server.domain.product.model.Product;
-import kr.hhplus.be.server.domain.product.model.ProductStatus;
-import kr.hhplus.be.server.domain.product.model.ProductStock;
+import kr.hhplus.be.server.interfaces.api.order.request.OrderItemRequest;
+import kr.hhplus.be.server.interfaces.api.order.request.OrderRequest;
+import kr.hhplus.be.server.domain.balance.entity.Balance;
+import kr.hhplus.be.server.domain.balance.repository.BalanceRepository;
+import kr.hhplus.be.server.domain.coupon.entity.Coupon;
+import kr.hhplus.be.server.domain.coupon.repository.CouponRepository;
+import kr.hhplus.be.server.domain.product.entity.Product;
+import kr.hhplus.be.server.domain.product.entity.ProductStatus;
+import kr.hhplus.be.server.domain.product.entity.ProductStock;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import kr.hhplus.be.server.domain.product.repository.ProductStockRepository;
-import kr.hhplus.be.server.domain.user.model.User;
-import kr.hhplus.be.server.domain.user.model.UserCoupon;
+import kr.hhplus.be.server.domain.user.entity.User;
+import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import kr.hhplus.be.server.domain.user.repository.UserCouponRepository;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -122,7 +122,7 @@ public class OrderFacadeIntegrationTest {
                 .andExpect(jsonPath("$.data.items.length()").value(1))
                 .andExpect(jsonPath("$.data.items[0].productId").value(product.getId()))
                 .andExpect(jsonPath("$.data.totalPrice").value((int) (originalTotalPrice * 0.9))) // 10% 할인
-                .andExpect(jsonPath("$.data.usedCouponIds[0].id").value(userCoupon.getId()));
+                .andExpect(jsonPath("$.data.usedCouponIds[0]").value(userCoupon.getId()));
     }
 
     @Test
@@ -248,7 +248,7 @@ public class OrderFacadeIntegrationTest {
                         .content(objectMapper.writeValueAsString(orderRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("잔액 부족"))
-                .andExpect(jsonPath("$.data").value("잔액이 부족합니다"));// 메시지에 맞게 수정
+                .andExpect(jsonPath("$.data").value("잔액이 부족합니다."));// 메시지에 맞게 수정
     }
 
     @Test
@@ -266,6 +266,6 @@ public class OrderFacadeIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(orderRequest)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.data").value("판매중인 상품이 아닙니다")); // 메시지에 맞게 수정
+                .andExpect(jsonPath("$.data").value("판매중인 상품이 아닙니다.")); // 메시지에 맞게 수정
     }
 }
