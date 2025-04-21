@@ -44,6 +44,19 @@ dependencies {
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:mysql")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
+
+	implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+
+	// Database for test
+	testImplementation("com.h2database:h2")
+
+	compileOnly("org.projectlombok:lombok:1.18.30")
+	annotationProcessor("org.projectlombok:lombok:1.18.30")
+
+	testCompileOnly("org.projectlombok:lombok:1.18.30")
+	testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 }
 
 tasks.withType<Test> {
