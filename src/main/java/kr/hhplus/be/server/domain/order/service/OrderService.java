@@ -18,7 +18,7 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
-    public Order createOrder(User user, List<OrderItem> items, List<UserCoupon> coupons, int totalPrice) {
+    public Order create(User user, List<OrderItem> items, List<UserCoupon> coupons, int totalPrice) {
         Order order = Order.create(user, coupons, items, totalPrice);
         return orderRepository.save(order);
     }

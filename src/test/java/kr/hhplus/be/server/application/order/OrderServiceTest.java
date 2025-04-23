@@ -41,7 +41,7 @@ public class OrderServiceTest {
         OrderItem orderItem = new OrderItem(product, qty, product.getPrice());
 
         // when
-        Order order = orderService.createOrder(user, List.of(orderItem), null, totalPrice);
+        Order order = orderService.create(user, List.of(orderItem), null, totalPrice);
 
         // then
         assertThat(order).isNotNull();

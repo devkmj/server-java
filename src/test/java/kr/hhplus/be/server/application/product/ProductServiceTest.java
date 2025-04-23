@@ -107,7 +107,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("상품 목록 정렬 순서 확인 (등록순)")
+    @DisplayName("상품 조회 시 상품 목록 정렬 순서 확인 (등록순)")
     void 정렬_순서_확인() {
         // given
         Product p1 = new Product("상품1", 120000, ProductStatus.ON_SALE);
@@ -125,7 +125,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("상품 이름이 null이나 공백이면 예외 밸상")
+    @DisplayName("상품 조회 시 상품 이름이 null이나 공백이면 예외 밸상")
     void 상품_이름이_null_또는_공백이면_예외() {
         assertThatThrownBy(() -> new Product(null, 0, ProductStatus.AVAILABLE))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -137,7 +137,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("상품 상태가 null이면 예외 발생")
+    @DisplayName("상품 조회 시 상품 상태가 null이면 예외 발생")
     void 상품_상태가_null이면_예외() {
         assertThatThrownBy(() -> new Product("상품", 1000, null))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -145,7 +145,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("상품 ID로 조회시 정상적으로 반환된다")
+    @DisplayName("상품 조회 시 상품 ID로 조회시 정상적으로 반환된다")
     void 상품_ID로_정상조회() {
         // given
         Product product = new Product("상품", 5000, ProductStatus.ON_SALE);

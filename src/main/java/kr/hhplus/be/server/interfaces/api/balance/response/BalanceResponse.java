@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.interfaces.api.balance.response;
 
 import kr.hhplus.be.server.domain.balance.entity.Balance;
+import lombok.RequiredArgsConstructor;
 
 public record BalanceResponse(Long userId, int balance) {
 

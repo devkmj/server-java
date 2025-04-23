@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.application.order;
 
-import kr.hhplus.be.server.application.order.model.OrderSummary;
+import kr.hhplus.be.server.application.order.dto.OrderDto;
 import kr.hhplus.be.server.domain.coupon.service.CouponService;
 import kr.hhplus.be.server.domain.order.command.OrderItemCommand;
 import kr.hhplus.be.server.domain.product.service.ProductStockService;
@@ -67,7 +67,7 @@ public class OrderFacadeTest {
         Balance balance = new Balance(userId, 100000);
         User user = new User("테스트유저");
         OrderItem orderItem = new OrderItem(product, qty, product.getPrice());
-        OrderSummary summary = new OrderSummary(List.of(orderItem), product.getPrice() * qty);
+        OrderDto summary = new OrderDto(List.of(orderItem), product.getPrice() * qty);
 
         given(userService.findByUserId(userId)).willReturn(user);
         given(balanceService.findByUserId(userId)).willReturn(balance);
@@ -77,11 +77,10 @@ public class OrderFacadeTest {
         OrderCommand command = OrderCommand.of(
                 userId,
                 List.of(new OrderItemCommand(productId, qty)),
-                qty,
                 null);
 
         // when & then
-        assertThatCode(() -> orderFacade.order(command))
+        assertThatCode(() -> orderFacade.createOrder(command))
                 .doesNotThrowAnyException();
     }
 
@@ -101,7 +100,7 @@ public class OrderFacadeTest {
 
         Product mockProduct = new Product("상품", productPrice, ProductStatus.AVAILABLE); // 재고 10 가정
         OrderItem orderItem = new OrderItem(mockProduct, qty, productPrice);
-        OrderSummary summary = new OrderSummary(List.of(orderItem), orderItem.getTotalPrice());
+        OrderDto summary = new OrderDto(List.of(orderItem), orderItem.getTotalPrice());
 
         when(userService.findByUserId(userId)).thenReturn(mockUser);
         when(balanceService.findByUserId(userId)).thenReturn(mockBalance);
@@ -116,14 +115,14 @@ public class OrderFacadeTest {
         // when & then
         InsufficientStockException exception = assertThrows(
                 InsufficientStockException.class,
-                () -> orderFacade.order(command)
+                () -> orderFacade.createOrder(command)
         );
 
         assertEquals("재고가 부족합니다", exception.getMessage());
     }
 
     @Test
-    @DisplayName("잔액 부족 시 예외가 발생한다")
+    @DisplayName("주문 생성 시 잔액이 부족할 경우 예외가 발생한다")
     void 잔액_부족_시_예외가_발생한다(){
         // given
         Long userId = 1L;
@@ -137,7 +136,7 @@ public class OrderFacadeTest {
 
         Product mockProduct = new Product("상품", productPrice, ProductStatus.AVAILABLE);
         OrderItem orderItem = new OrderItem(mockProduct, qty, productPrice);
-        OrderSummary summary = new OrderSummary(List.of(orderItem), orderItem.getTotalPrice());
+        OrderDto summary = new OrderDto(List.of(orderItem), orderItem.getTotalPrice());
         Balance mockBalance = new Balance(userId, 1000);
 
         when(orderCalculationService.calculateOrderItems(anyList(), any())).thenReturn(summary);
@@ -150,14 +149,14 @@ public class OrderFacadeTest {
         // when & then
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> orderFacade.order(command)
+                () -> orderFacade.createOrder(command)
         );
 
         assertEquals("잔액이 부족합니다", exception.getMessage());
     }
 
     @Test
-    @DisplayName("쿠폰이 유효하지 않을 경우 예외가 발생한다")
+    @DisplayName("주문 생성 시 쿠폰이 유효하지 않을 경우 예외가 발생한다")
     void 쿠폰이_유효하지_않을_경우_예외가_발생한다() {
         // given
         Long userId = 1L;
@@ -171,7 +170,7 @@ public class OrderFacadeTest {
 
         Product mockProduct = new Product("상품", productPrice, ProductStatus.AVAILABLE);
         OrderItem orderItem = new OrderItem(mockProduct, qty, productPrice);
-        OrderSummary summary = new OrderSummary(List.of(orderItem), totalPrice);
+        OrderDto summary = new OrderDto(List.of(orderItem), totalPrice);
 
         when(userService.findByUserId(userId)).thenReturn(new User(userId, "사용자"));
         when(balanceService.findByUserId(userId)).thenReturn(new Balance(userId, 20000));
@@ -183,14 +182,14 @@ public class OrderFacadeTest {
         // when & then
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> orderFacade.order(command)
+                () -> orderFacade.createOrder(command)
         );
 
         assertEquals("유효하지 않은 쿠폰입니다", exception.getMessage());
     }
 
     @Test
-    @DisplayName("쿠폰이 이미 사용된 경우 예외가 발생한다")
+    @DisplayName("주문 생성 시 쿠폰이 이미 사용된 경우 예외가 발생한다")
     void 쿠폰이_이미_사용된_경우_예외가_발생한다() {
         // given
         Long userId = 1L;
@@ -204,7 +203,7 @@ public class OrderFacadeTest {
 
         Product mockProduct = new Product("상품", productPrice, ProductStatus.AVAILABLE);
         OrderItem orderItem = new OrderItem(mockProduct, qty, productPrice);
-        OrderSummary summary = new OrderSummary(List.of(orderItem), totalPrice);
+        OrderDto summary = new OrderDto(List.of(orderItem), totalPrice);
         Coupon coupon = new Coupon(30, 1000, 200, LocalDateTime.now().minusMonths(1) ,LocalDateTime.now().plusDays(1));
         UserCoupon usedCoupon = new UserCoupon(userId, coupon);
         usedCoupon.markAsUsed(); // 사용된 상태로 변경
@@ -219,7 +218,7 @@ public class OrderFacadeTest {
         // when & then
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> orderFacade.order(command)
+                () -> orderFacade.createOrder(command)
         );
 
         assertEquals("이미 사용된 쿠폰입니다", exception.getMessage());
@@ -227,7 +226,7 @@ public class OrderFacadeTest {
     }
 
     @Test
-    @DisplayName("상품 상태가 판매 중지일 경우 예외가 발생한다")
+    @DisplayName("주문 생성 시 상품 상태가 판매 중지일 경우 예외가 발생한다")
     void 상품_상태가_판매_중지일_경우_예외가_발생한다() {
         // given
         Long userId = 1L;
@@ -250,14 +249,14 @@ public class OrderFacadeTest {
         // when & then
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> orderFacade.order(command)
+                () -> orderFacade.createOrder(command)
         );
 
         assertEquals("판매중인 상품이 아닙니다", exception.getMessage());
     }
 
     @Test
-    @DisplayName("상품 상태가 삭제일 경우 예외가 발생한다")
+    @DisplayName("주문 생성 시 상품 상태가 삭제일 경우 예외가 발생한다")
     void 상품_상태가_삭제일_경우_예외가_발생한다() {
         // given
         Long userId = 1L;
@@ -280,14 +279,14 @@ public class OrderFacadeTest {
         // when & then
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> orderFacade.order(command)
+                () -> orderFacade.createOrder(command)
         );
 
         assertEquals("판매중인 상품이 아닙니다", exception.getMessage());
     }
 
     @Test
-    @DisplayName("상품 상태가 품절일 경우 예외가 발생한다")
+    @DisplayName("주문 생성 시 상품 상태가 품절일 경우 예외가 발생한다")
     void 상품_상태가_품절일_경우_예외가_발생한다() {
         // given
         Long userId = 1L;
@@ -310,14 +309,14 @@ public class OrderFacadeTest {
         // when & then
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> orderFacade.order(command)
+                () -> orderFacade.createOrder(command)
         );
 
         assertEquals("판매중인 상품이 아닙니다", exception.getMessage());
     }
 
     @Test
-    @DisplayName("존재하지 않는 쿠폰 ID일 경우 예외가 발생한다")
+    @DisplayName("주문 생성 시 존재하지 않는 쿠폰 ID일 경우 예외가 발생한다")
     void 존재하지_않는_쿠폰_ID일_경우_예외() {
         Long userId = 1L;
         Long productId = 1L;
@@ -329,7 +328,7 @@ public class OrderFacadeTest {
         Product product = new Product("맥북", 320000, ProductStatus.SOLD_OUT);
         OrderItem orderItem = new OrderItem(product, qty, product.getPrice());
 
-        OrderSummary summary = new OrderSummary(List.of(orderItem), product.getPrice() * qty);
+        OrderDto summary = new OrderDto(List.of(orderItem), product.getPrice() * qty);
 
         when(userService.findByUserId(userId)).thenReturn(new User(userId, "사용자"));
         when(balanceService.findByUserId(userId)).thenReturn(new Balance(userId, 20000));
@@ -338,14 +337,14 @@ public class OrderFacadeTest {
         when(couponService.applyCoupons(anyList(), anyInt()))
                 .thenThrow(new IllegalArgumentException("쿠폰을 찾을 수 없습니다"));
 
-        assertThatThrownBy(() -> orderFacade.order(command))
+        assertThatThrownBy(() -> orderFacade.createOrder(command))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("쿠폰을 찾을 수 없습니다");
     }
 
 
     @Test
-    @DisplayName("존재하지 않는 사용자 ID일 경우 예외가 발생한다")
+    @DisplayName("주문 생성 시 존재하지 않는 사용자 ID일 경우 예외가 발생한다")
     void 존재하지_않는_사용자_ID일_경우_예외() {
         Long userId = 1L;
         Long productId = 1L;
@@ -356,15 +355,15 @@ public class OrderFacadeTest {
         given(userService.findByUserId(userId))
                 .willThrow(new IllegalArgumentException("존재하지 않는 사용자입니다"));
 
-        OrderCommand command = OrderCommand.of(userId, List.of(new OrderItemCommand(productId, qty)), qty, null);
+        OrderCommand command = OrderCommand.of(userId, List.of(new OrderItemCommand(productId, qty)), null);
 
-        assertThatThrownBy(() -> orderFacade.order(command))
+        assertThatThrownBy(() -> orderFacade.createOrder(command))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("존재하지 않는 사용자입니다");
     }
 
     @Test
-    @DisplayName("존재하지 않는 상품 ID일 경우 예외가 발생한다")
+    @DisplayName("주문 생성 시 존재하지 않는 상품 ID일 경우 예외가 발생한다")
     void 존재하지_않는_상품_ID일_경우_예외() {
         // given
         Long userId = 1L;
@@ -384,7 +383,7 @@ public class OrderFacadeTest {
         // when & then
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> orderFacade.order(command)
+                () -> orderFacade.createOrder(command)
         );
 
         assertEquals("존재하지 않는 상품입니다.", exception.getMessage());

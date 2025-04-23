@@ -25,7 +25,7 @@ public record OrderResponse(
                 order.getOrderItems().stream()
                         .map(OrderItemResponse::from)
                         .toList(),
-                order.getUserCoupon().stream()
+                order.getUserCoupons().stream()
                         .map(UserCoupon::getId)
                         .toList()
         );

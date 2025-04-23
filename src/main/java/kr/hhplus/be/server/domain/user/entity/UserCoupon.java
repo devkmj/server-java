@@ -7,9 +7,10 @@ import kr.hhplus.be.server.domain.coupon.entity.Coupon;
 @Entity
 @Table(name = "user_coupon", indexes = {
         @Index(name = "idx_user_coupon_user_id", columnList = "userId"),
-        @Index(name = "idx_user_coupon_coupon_id", columnList = "coupon_id"),
-        @Index(name = "idx_user_coupon_used", columnList = "used")
-})
+        @Index(name = "idx_user_coupon_coupon_id", columnList = "couponId"),
+        @Index(name = "idx_user_coupon_used", columnList = "used"),
+},
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "coupon_id"}))
 public class UserCoupon extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +22,7 @@ public class UserCoupon extends BaseTimeEntity {
     @JoinColumn(name = "coupon_id", nullable = false)
     private Coupon coupon;
 
+    @Column(nullable = false)
     private boolean used;
 
     protected UserCoupon() {}

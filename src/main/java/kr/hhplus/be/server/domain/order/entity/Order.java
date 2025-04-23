@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.entity.BaseTimeEntity;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
 
 @Entity
+@Getter
 @Table(name = "orders", indexes = {
         @Index(name = "idx_order_user_id", columnList = "user_id"),
         @Index(name = "idx_order_status", columnList = "status"),
@@ -53,7 +55,7 @@ public class Order extends BaseTimeEntity {
         order.status = OrderStatus.PENDING;
 
         for (OrderItem item : items) {
-            item.setOrder(order); // 양방향 연관관계 연결
+            item.assignTo(order);
         }
 
         return order;
@@ -66,27 +68,6 @@ public class Order extends BaseTimeEntity {
 
     public void cancel() {
         this.status = OrderStatus.CANCELD;
-    }
-
-    // Getter
-    public Long getId() {
-        return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public List<UserCoupon> getUserCoupon() {
-        return userCoupons;
-    }
-
-    public OrderStatus getStatus() {
-        return this.status;
-    }
-
-    public int getTotalPrice() {
-        return this.totalPrice;
     }
 
     public List<OrderItem> getOrderItems() {

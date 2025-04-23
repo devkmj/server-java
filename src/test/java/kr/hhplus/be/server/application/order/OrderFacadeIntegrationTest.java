@@ -175,7 +175,7 @@ public class OrderFacadeIntegrationTest {
     }
 
     @Test
-    @DisplayName("만료된 쿠폰 사용 시 예외 발생")
+    @DisplayName("만료된 쿠폰 사용하여 주문 시도 시 예외가 발생한다")
     void 만료된_쿠폰_예외() throws Exception {
         User user = userRepository.findAll().get(0);
         Product product = productRepository.findAll().get(0);
@@ -195,7 +195,7 @@ public class OrderFacadeIntegrationTest {
     }
 
     @Test
-    @DisplayName("다른 유저의 쿠폰 사용 시 예외 발생")
+    @DisplayName("다른 유저의 쿠폰 사용하여 주문 시 예외 발생한다")
     void 다른_유저_코폰_사용_예외() throws Exception {
         User user1 = userRepository.findAll().get(0);
         User user2 = userRepository.save(new User("다른 유저"));
@@ -216,7 +216,7 @@ public class OrderFacadeIntegrationTest {
     }
 
     @Test
-    @DisplayName("재고 부족 시 예외 발생")
+    @DisplayName("주문 생성 시 해당 상품의 재고가 부족할 경우 예외가 발생한다")
     void 재고_부족_예외() throws Exception {
         User user = userRepository.findAll().get(0);
         Product product = productRepository.findAll().get(0);
@@ -233,7 +233,7 @@ public class OrderFacadeIntegrationTest {
     }
 
     @Test
-    @DisplayName("잔액 부족 시 예외 발생")
+    @DisplayName("주문 생성 시 잔액이 부족할 경우 예외가 발생한다")
     void 잔액_부족_예외() throws Exception {
         User user = userRepository.save(new User("잔액 부족 유저"));
         Product product = productRepository.findAll().get(0);
@@ -252,7 +252,7 @@ public class OrderFacadeIntegrationTest {
     }
 
     @Test
-    @DisplayName("상품 상태 삭제일 경우 예외 발생")
+    @DisplayName("주문 생성 시 상품의 상태가 삭제일 경우 예외가 발생한다")
     void 상품_삭제_예외() throws Exception {
         User user = userRepository.findAll().get(0);
         Product deletedProduct = productRepository.save(new Product("삭제 상품", 10000, ProductStatus.DELETE));

@@ -138,7 +138,7 @@ public class BalanceIntegrationTest {
         }
 
         @Test
-        @DisplayName("음수 충전 시 예외가 발생한다")
+        @DisplayName("잔액 충전 시 금액이 음수이면 예외가 발생한다")
         void 음수_충전_예외_발생() throws Exception {
             // given
             String invalidRequest = """
@@ -158,7 +158,7 @@ public class BalanceIntegrationTest {
         }
 
         @Test
-        @DisplayName("필수값 누락 시 400 응답이 발생한다")
+        @DisplayName("잔액 충전 시 userId 값이 누락되면 400 응답이 발생한다")
         void 필수값_누락() throws Exception {
             String request = """
             {

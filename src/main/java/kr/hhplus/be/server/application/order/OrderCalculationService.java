@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.application.order;
 
-import kr.hhplus.be.server.application.order.model.OrderSummary;
+import kr.hhplus.be.server.application.order.dto.OrderDto;
 import kr.hhplus.be.server.domain.order.entity.OrderItem;
 import kr.hhplus.be.server.domain.order.command.OrderItemCommand;
 import kr.hhplus.be.server.domain.product.service.ProductStockService;
@@ -21,7 +21,7 @@ public class OrderCalculationService {
     private final ProductService productService;
     private final ProductStockService productStockService;
 
-    public OrderSummary calculateOrderItems(List<OrderItemCommand> itemCommands, Balance balance) {
+    public OrderDto calculateOrderItems(List<OrderItemCommand> itemCommands, Balance balance) {
         int totalPrice = 0;
         List<OrderItem> orderItems = new ArrayList<>();
 
@@ -41,6 +41,6 @@ public class OrderCalculationService {
             orderItems.add(orderItem);
         }
 
-        return new OrderSummary(orderItems, totalPrice);
+        return new OrderDto(orderItems, totalPrice);
     }
 }

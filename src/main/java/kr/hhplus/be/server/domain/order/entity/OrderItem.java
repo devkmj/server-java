@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+@Getter
 @Entity
 @Table(name = "order_item", indexes = {
         @Index(name = "idx_order_item_order_id" , columnList = "orderId"),
@@ -16,26 +17,21 @@ import java.time.LocalDateTime;
 })
 public class OrderItem extends BaseTimeEntity {
 
-    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     // 소속된 주문
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    @Getter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Getter
     private int qty;
 
-    @Getter
     private int price; // 스냅샷용 상품 가격
 
     protected OrderItem() {}
@@ -68,4 +64,8 @@ public class OrderItem extends BaseTimeEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void assignTo(Order order) {
+        this.order = order;
+        order.getItems().add(this);
+    }
 }
