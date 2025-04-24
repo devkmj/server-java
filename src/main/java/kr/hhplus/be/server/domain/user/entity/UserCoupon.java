@@ -29,6 +29,9 @@ public class UserCoupon extends BaseTimeEntity {
     @Column(nullable = false)
     private boolean used;
 
+    @Version
+    private Long version;
+
     protected UserCoupon() {}
 
     public UserCoupon(Long userId, Coupon coupon) {

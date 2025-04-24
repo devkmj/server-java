@@ -21,6 +21,9 @@ public class Balance extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer balance;
 
+    @Version
+    private Long version;
+
     protected Balance() {}
 
     public Balance(Long userId, Integer balance) {
