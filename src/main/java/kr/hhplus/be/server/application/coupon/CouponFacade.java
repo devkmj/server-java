@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.application.order.coupon;
+package kr.hhplus.be.server.application.coupon;
 
 import kr.hhplus.be.server.domain.coupon.command.IssueCouponCommand;
 import kr.hhplus.be.server.domain.coupon.entity.Coupon;

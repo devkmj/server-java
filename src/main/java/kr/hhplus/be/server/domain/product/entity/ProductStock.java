@@ -2,8 +2,10 @@ package kr.hhplus.be.server.domain.product.entity;
 
 import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.entity.BaseTimeEntity;
+import lombok.Getter;
 
 @Entity
+@Getter
 @Table(name = "product_stock", indexes = {
         @Index(name = "idx_product_stock_product_id", columnList = "product_id")
 })
@@ -23,10 +25,6 @@ public class ProductStock extends BaseTimeEntity {
     public ProductStock(Product product, int stock) {
         this.product = product;
         this.stock = stock;
-    }
-
-    public int getStock() {
-        return stock;
     }
 
     public void validateEnough(int qty) {

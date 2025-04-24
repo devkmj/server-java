@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.domain.balance.service;
 
 import kr.hhplus.be.server.domain.balance.command.BalanceChargeCommand;
+import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.interfaces.api.balance.response.BalanceResponse;
 import kr.hhplus.be.server.domain.balance.exception.BalanceNotFoundException;
 import kr.hhplus.be.server.domain.balance.entity.Balance;
@@ -40,5 +41,12 @@ public class BalanceService {
 
     public void useBalance(Balance balance, int totalPrice) {
         balance.deduct(totalPrice);
+    }
+
+    public void refund(User user, int totalPrice){
+        Balance balance = balanceRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new BalanceNotFoundException("존재하지 않는 사용자입니다"));
+        balance.charge(totalPrice);
+        balanceRepository.save(balance);
     }
 }

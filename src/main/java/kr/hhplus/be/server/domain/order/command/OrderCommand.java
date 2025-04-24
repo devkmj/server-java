@@ -21,6 +21,9 @@ public class OrderCommand {
         if(items.isEmpty()) {
             throw new IllegalArgumentException("선텍힌 싱픔이 존재하지 않습니다");
         }
+        this.userId = userId;
+        this.items = items;
+        this.userCouponIds = userCouponIds;
     }
     public static OrderCommand from(OrderRequest request) {
         OrderCommand command = new OrderCommand();

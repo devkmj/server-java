@@ -52,4 +52,8 @@ public class UserCouponService {
                 .map(Optional::get)                  // 실제 UserCoupon 객체로 변환
                 .collect(Collectors.toList());
     }
+
+    public void restore(List<UserCoupon> userCoupons) {
+        userCoupons.forEach(userCouponRepository::save);
+    }
 }

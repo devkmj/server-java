@@ -3,6 +3,9 @@ package kr.hhplus.be.server.application.order;
 import kr.hhplus.be.server.application.order.dto.OrderDto;
 import kr.hhplus.be.server.domain.coupon.service.CouponService;
 import kr.hhplus.be.server.domain.order.command.OrderItemCommand;
+import kr.hhplus.be.server.domain.order.entity.Order;
+import kr.hhplus.be.server.domain.order.entity.OrderStatus;
+import kr.hhplus.be.server.domain.order.event.StockDecreaseRequestedEvent;
 import kr.hhplus.be.server.domain.product.service.ProductStockService;
 import kr.hhplus.be.server.domain.balance.service.BalanceService;
 import kr.hhplus.be.server.domain.order.command.OrderCommand;
@@ -20,21 +23,30 @@ import kr.hhplus.be.server.domain.order.service.OrderService;
 import kr.hhplus.be.server.domain.order.exception.InsufficientStockException;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
+import kr.hhplus.be.server.interfaces.api.order.request.OrderItemRequest;
+import kr.hhplus.be.server.interfaces.api.order.request.OrderRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.MediaType;
 
 import static org.assertj.core.api.Assertions.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @DisplayName("Order 도메인 단위 테스트")
 @ExtendWith(MockitoExtension.class)
@@ -52,8 +64,7 @@ public class OrderFacadeTest {
     @Mock private OrderService orderService;
     @Mock private CouponService couponService;
     @Mock private OrderItemService orderItemService;
-
-
+    @Mock private ApplicationEventPublisher eventPublisher;
 
     @Test
     void 정상_주문_성공() {
@@ -69,57 +80,64 @@ public class OrderFacadeTest {
         OrderItem orderItem = new OrderItem(product, qty, product.getPrice());
         OrderDto summary = new OrderDto(List.of(orderItem), product.getPrice() * qty);
 
-        given(userService.findByUserId(userId)).willReturn(user);
-        given(balanceService.findByUserId(userId)).willReturn(balance);
-        given(orderCalculationService.calculateOrderItems(anyList(), eq(balance))).willReturn(summary);
-
-        // OrderCommand 생성 시 주문 아이템 리스트 전달
         OrderCommand command = OrderCommand.of(
                 userId,
                 List.of(new OrderItemCommand(productId, qty)),
                 null);
 
-        // when & then
-        assertThatCode(() -> orderFacade.createOrder(command))
-                .doesNotThrowAnyException();
+        given(userService.findByUserId(userId)).willReturn(user);
+        given(balanceService.findByUserId(userId)).willReturn(balance);
+        given(orderCalculationService.calculateOrderItems(anyList(), eq(balance))).willReturn(summary);
+
+        Order order = mock(Order.class);
+        given(order.getId()).willReturn(100L); // mock 반환값 설정
+        given(orderService.createPendingOrder(any(User.class), anyList(), anyList(), anyInt()))
+                .willReturn(order);
+
+        // when
+        Order result = orderFacade.createOrder(command);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(100L);
     }
 
-    @Test
-    void 재고가_부족하면_예외가_발생한다() {
-        // given
-        Long userId = 1L;
-        Long productId = 100L;
-        int qty = 5;
-        int productPrice = 2000;
-
-        OrderItemCommand item = new OrderItemCommand(productId, qty);
-        OrderCommand command = new OrderCommand(userId, List.of(item), null); // userCouponIds 생략 가능
-
-        User mockUser = new User(userId, "사용자");
-        Balance mockBalance = new Balance(userId, 10000);
-
-        Product mockProduct = new Product("상품", productPrice, ProductStatus.AVAILABLE); // 재고 10 가정
-        OrderItem orderItem = new OrderItem(mockProduct, qty, productPrice);
-        OrderDto summary = new OrderDto(List.of(orderItem), orderItem.getTotalPrice());
-
-        when(userService.findByUserId(userId)).thenReturn(mockUser);
-        when(balanceService.findByUserId(userId)).thenReturn(mockBalance);
-        when(orderCalculationService.calculateOrderItems(anyList(), any())).thenReturn(summary);
-        when(couponService.applyCoupons(anyList(), anyInt())).thenReturn(orderItem.getTotalPrice());
-
-        // 상품 재고 감소 시 예외 발생
-        doThrow(new InsufficientStockException("재고가 부족합니다"))
-                .when(productStockService)
-                .decreaseProductStocks(List.of(item));
-
-        // when & then
-        InsufficientStockException exception = assertThrows(
-                InsufficientStockException.class,
-                () -> orderFacade.createOrder(command)
-        );
-
-        assertEquals("재고가 부족합니다", exception.getMessage());
-    }
+//    @Test
+//    void 재고가_부족하면_예외가_발생한다() {
+//        // given
+//        Long userId = 1L;
+//        Long productId = 100L;
+//        int qty = 5;
+//        int productPrice = 2000;
+//
+//        OrderItemCommand item = new OrderItemCommand(productId, qty);
+//        OrderCommand command = new OrderCommand(userId, List.of(item), null); // userCouponIds 생략 가능
+//
+//        User mockUser = new User(userId, "사용자");
+//        Balance mockBalance = new Balance(userId, 10000);
+//
+//        Product mockProduct = new Product("상품", productPrice, ProductStatus.AVAILABLE); // 재고 10 가정
+//        OrderItem orderItem = new OrderItem(mockProduct, qty, productPrice);
+//        OrderDto summary = new OrderDto(List.of(orderItem), orderItem.getTotalPrice());
+//
+//        when(userService.findByUserId(userId)).thenReturn(mockUser);
+//        when(balanceService.findByUserId(userId)).thenReturn(mockBalance);
+//        when(orderCalculationService.calculateOrderItems(anyList(), any())).thenReturn(summary);
+//        when(couponService.applyCoupons(anyList(), anyInt())).thenReturn(orderItem.getTotalPrice());
+//
+//        // 상품 재고 감소 시 예외 발생
+//        doThrow(new InsufficientStockException("재고가 부족합니다"))
+//                .when(productStockService)
+//                .decreaseProductStocks(List.of(item));
+//
+//        // when & then
+//        InsufficientStockException exception = assertThrows(
+//                InsufficientStockException.class,
+//                () -> orderFacade.createOrder(command)
+//        );
+//
+//        assertEquals("재고가 부족합니다", exception.getMessage());
+//    }
 
     @Test
     @DisplayName("주문 생성 시 잔액이 부족할 경우 예외가 발생한다")
@@ -388,4 +406,43 @@ public class OrderFacadeTest {
 
         assertEquals("존재하지 않는 상품입니다.", exception.getMessage());
     }
+
+    @Test
+    @DisplayName("주문 생성시 재고 차감 이벤트가 발행된다")
+    void 주문_생성시_이벤트가_발행된다(){
+        // given
+        Long userId = 1L;
+        Long productId = 1L;
+        int qty = 1;
+
+        Product product = new Product("테스트상품", 10000, ProductStatus.ON_SALE);
+        ProductStock stock = new ProductStock(product, 10);
+        Balance balance = new Balance(userId, 100000);
+        User user = new User("테스트유저");
+        OrderItem orderItem = new OrderItem(product, qty, product.getPrice());
+        OrderDto summary = new OrderDto(List.of(orderItem), product.getPrice() * qty);
+
+        OrderCommand command = OrderCommand.of(
+                userId,
+                List.of(new OrderItemCommand(productId, qty)),
+                null);
+
+        given(userService.findByUserId(userId)).willReturn(user);
+        given(balanceService.findByUserId(userId)).willReturn(balance);
+        given(orderCalculationService.calculateOrderItems(anyList(), eq(balance))).willReturn(summary);
+
+        Order order = mock(Order.class);
+        given(order.getId()).willReturn(100L); // mock 반환값 설정
+        given(orderService.createPendingOrder(any(User.class), anyList(), anyList(), anyInt()))
+                .willReturn(order);
+
+        // when
+        Order result = orderFacade.createOrder(command);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(100L);
+        verify(eventPublisher).publishEvent(any(StockDecreaseRequestedEvent.class));
+    }
+
 }

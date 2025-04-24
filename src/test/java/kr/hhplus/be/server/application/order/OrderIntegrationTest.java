@@ -1,6 +1,12 @@
 package kr.hhplus.be.server.application.order;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.hhplus.be.server.domain.order.command.OrderCommand;
+import kr.hhplus.be.server.domain.order.entity.Order;
+import kr.hhplus.be.server.domain.order.entity.OrderStatus;
+import kr.hhplus.be.server.domain.order.repository.OrderRepository;
+import kr.hhplus.be.server.domain.order.service.OrderItemService;
 import kr.hhplus.be.server.interfaces.api.order.request.OrderItemRequest;
 import kr.hhplus.be.server.interfaces.api.order.request.OrderRequest;
 import kr.hhplus.be.server.domain.balance.entity.Balance;
@@ -19,6 +25,7 @@ import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,17 +36,25 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import static org.awaitility.Awaitility.await;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 @Rollback(false)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @DisplayName("Order 통합 테스트")
-public class OrderFacadeIntegrationTest {
+public class OrderIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -47,6 +62,8 @@ public class OrderFacadeIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private OrderRepository orderRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -59,6 +76,8 @@ public class OrderFacadeIntegrationTest {
     private CouponRepository couponRepository;
     @Autowired
     private UserCouponRepository userCouponRepository;
+    @Mock
+    private OrderFacade orderFacade;
 
     @BeforeEach
     void setUp() {
@@ -191,7 +210,7 @@ public class OrderFacadeIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(orderRequest)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.data").value("유효하지 않은 쿠폰입니디"));
+                .andExpect(jsonPath("$.data").value("유효하지 않은 쿠폰입니다"));
     }
 
     @Test
@@ -268,4 +287,146 @@ public class OrderFacadeIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.data").value("판매중인 상품이 아닙니다.")); // 메시지에 맞게 수정
     }
+
+    @Test
+    @DisplayName("동일 유저가 동시에 여러 주문 요청 시 하나만 성공해야 한다")
+    void 동시_결제_요청_테스트() throws InterruptedException {
+        // given
+        User user = userRepository.save(new User("동시성 유저"));
+        Balance balance = balanceRepository.save(new Balance(user.getId(), 10000));
+        Product product = productRepository.save(new Product("테스트 상품", 10000, ProductStatus.AVAILABLE));
+        productStockRepository.save(new ProductStock(product, 1));
+
+        OrderRequest orderRequest = new OrderRequest(
+                user.getId(),
+                List.of(new OrderItemRequest(product.getId(), 1, product.getPrice())),
+                null
+        );
+
+        int threadCount = 2;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failCount = new AtomicInteger(0);
+
+        // when
+        for (int i = 0; i < threadCount; i++) {
+            executorService.submit(() -> {
+                try {
+                    mockMvc.perform(post("/orders")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(orderRequest)))
+                            .andExpect(result -> {
+                                int status = result.getResponse().getStatus();
+                                if (status == 200) {
+                                    successCount.incrementAndGet();
+                                } else {
+                                    failCount.incrementAndGet();
+                                }
+                            });
+                } catch (Exception e) {
+                    failCount.incrementAndGet();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        System.out.println("성공 요청 수: " + successCount.get());
+        System.out.println("실패 요청 수: " + failCount.get());
+
+        // 둘 중 하나만 성공해야 한다.
+        assertThat(successCount.get()).isEqualTo(1);
+        assertThat(failCount.get()).isEqualTo(1);
+    }
+
+   @DisplayName("주문 생성 후 재고 차감 성공 시 주문 상태는 COMFIRMED 이어야 한다")
+    @Test
+    void 주문_생성_후_재고_차감_성공_시_상태가_CONFIRMED() throws InterruptedException {
+
+        // given
+        Long userId = userRepository.findAll().get(0).getId();
+        Product product = productRepository.findAll().get(0);
+        int qty = 3;
+        var orderRequest = new OrderRequest(userId, List.of(new OrderItemRequest(product.getId(), qty, product.getPrice())), null);
+        OrderCommand command = OrderCommand.from(orderRequest);
+
+        // when
+        Order created = orderFacade.createOrder(command);
+        System.out.println("✅ created: " + created);
+        System.out.println("✅ userId = " + userId);
+        System.out.println("✅ productId = " + product.getId());
+        System.out.println("✅ command = " + command);
+
+        // then
+        // 일정 시간 대기 후 비동기 이벤트까지 처리되었는지 확인
+        Thread.sleep(100); // @Async나 EventQueue 처리 시간 고려
+        Order order = orderRepository.findById(created.getId()).get();
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.CONFIRMED);
+
+    }
+
+    @DisplayName("주문 생성 시 재고 차감이 성공하면 주문 상태는 CONFIRMED여야 한다")
+    @Test
+    void 주문_생성_및_재고차감_후_상태_CONFIRMED_확인() throws Exception {
+        // given
+        Long userId = userRepository.findAll().get(0).getId();
+        Product product = productRepository.findAll().get(0);
+        int qty = 3;
+
+        OrderItemRequest itemRequest = new OrderItemRequest(product.getId(), qty, product.getPrice());
+        OrderRequest orderRequest = new OrderRequest(userId, List.of(itemRequest), null);
+
+        // when & then
+        mockMvc.perform(post("/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orderRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.userId").value(userId))
+                .andExpect(jsonPath("$.data.items.length()").value(1))
+                .andExpect(jsonPath("$.data.items[0].productId").value(product.getId()))
+                .andExpect(jsonPath("$.data.items[0].qty").value(qty))
+                .andExpect(jsonPath("$.data.orderStatus").value("CONFIRMED"));
+    }
+
+
+    @DisplayName("주문 생성 후 상태는 PENDING → 이후 CONFIRMED로 변경되어야 한다")
+    @Test
+    void 주문_생성_이후_비동기_재고차감_으로_CONFIRMED_상태_전이_확인() throws Exception {
+        // given
+        Long userId = userRepository.findAll().get(0).getId();
+        Product product = productRepository.findAll().get(0);
+        int qty = 3;
+
+        OrderItemRequest itemRequest = new OrderItemRequest(product.getId(), qty, product.getPrice());
+        OrderRequest orderRequest = new OrderRequest(userId, List.of(itemRequest), null);
+
+        // 주문 생성 요청
+        String response = mockMvc.perform(post("/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orderRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.orderStatus").value("PENDING")) // ✅ 초기 상태 확인
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // ✅ 생성된 주문 ID 파싱
+        JsonNode root = objectMapper.readTree(response);
+        Long orderId = root.path("data").path("orderId").asLong();
+
+        // ✅ Awaitility로 CONFIRMED 상태 될 때까지 대기
+        await()
+                .atMost(2, TimeUnit.SECONDS)
+                .pollInterval(100, TimeUnit.MILLISECONDS)
+                .untilAsserted(() -> {
+                    Order confirmed = orderRepository.findById(orderId).orElseThrow();
+                    assertThat(confirmed.getStatus()).isEqualTo(OrderStatus.CONFIRMED);
+                });
+    }
+
 }

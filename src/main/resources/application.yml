@@ -31,4 +31,21 @@ spring:
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/hhplus?characterEncoding=UTF-8&serverTimezone=UTC
     username: application
-    password: application 
+    password: application
+
+logging:
+  level:
+    root: INFO
+
+    kr.hhplus.be.server.domain.order: INFO
+    kr.hhplus.be.server.application.order: INFO
+
+    # 이벤트 처리 로깅
+    kr.hhplus.be.server.application.stock: INFO
+
+    # JPA SQL 출력 추가
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

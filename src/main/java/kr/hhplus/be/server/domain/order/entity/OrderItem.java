@@ -66,6 +66,5 @@ public class OrderItem extends BaseTimeEntity {
 
     public void assignTo(Order order) {
         this.order = order;
-        order.getItems().add(this);
     }
 }

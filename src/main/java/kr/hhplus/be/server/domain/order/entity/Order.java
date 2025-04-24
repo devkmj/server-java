@@ -5,6 +5,7 @@ import kr.hhplus.be.server.domain.common.entity.BaseTimeEntity;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 
 @Entity
 @Getter
+@Slf4j
 @Table(name = "orders", indexes = {
         @Index(name = "idx_order_user_id", columnList = "user_id"),
         @Index(name = "idx_order_status", columnList = "status"),
@@ -50,7 +52,7 @@ public class Order extends BaseTimeEntity {
         Order order = new Order();
         order.user = user;
         order.userCoupons = userCoupons;
-        order.items = items; // ✅ 필드에 할당
+        order.items = items;
         order.totalPrice = totalPrice;
         order.status = OrderStatus.PENDING;
 
@@ -61,13 +63,14 @@ public class Order extends BaseTimeEntity {
         return order;
     }
 
-    // 상태 변경
-    public void complete() {
-        this.status = OrderStatus.COMPLETED;
+    public void markAsConfirmed() {
+        log.info("[ORDER][CONFIRMED] 주문 ID: {}, 사용자 ID: {}", this.id, this.user.getId());
+        this.status = OrderStatus.CONFIRMED;
     }
 
-    public void cancel() {
-        this.status = OrderStatus.CANCELD;
+    public void markAsFailed(String reason) {
+        log.warn("[ORDER][FAILED] 주문 ID: {}, 사용자 ID: {}, 사유: {}", this.id, this.user.getId(), reason);
+        this.status = OrderStatus.FAILED;
     }
 
     public List<OrderItem> getOrderItems() {

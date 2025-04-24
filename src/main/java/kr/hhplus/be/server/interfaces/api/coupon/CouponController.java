@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.interfaces.api.coupon;
 
-import kr.hhplus.be.server.application.order.coupon.CouponFacade;
-import kr.hhplus.be.server.domain.coupon.service.CouponService;
+import kr.hhplus.be.server.application.coupon.CouponFacade;
 import kr.hhplus.be.server.domain.coupon.command.IssueCouponCommand;
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import kr.hhplus.be.server.interfaces.api.common.response.ApiResponse;

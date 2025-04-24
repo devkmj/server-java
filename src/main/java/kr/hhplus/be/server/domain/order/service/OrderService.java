@@ -18,8 +18,13 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
-    public Order create(User user, List<OrderItem> items, List<UserCoupon> coupons, int totalPrice) {
-        Order order = Order.create(user, coupons, items, totalPrice);
+    public Order create(User user, List<OrderItem> orderItems, List<UserCoupon> userCoupons, int discountedTotal) {
+        Order order = Order.create(user, userCoupons, orderItems, discountedTotal);
+        return orderRepository.save(order);
+    }
+
+    public Order createPendingOrder(User user, List<OrderItem> orderItems, List<UserCoupon> userCoupons, int discountedTotal) {
+        Order order = Order.create(user, userCoupons, orderItems, discountedTotal);
         return orderRepository.save(order);
     }
 }

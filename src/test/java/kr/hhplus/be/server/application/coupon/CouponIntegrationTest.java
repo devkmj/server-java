@@ -138,7 +138,7 @@ public class CouponIntegrationTest {
                 Limitedcoupon.getId()
         );
 
-        int threadCount = 10;
+        int threadCount = 10000;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
