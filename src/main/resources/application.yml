@@ -36,16 +36,9 @@ spring:
 logging:
   level:
     root: INFO
-
-    kr.hhplus.be.server.domain.order: INFO
-    kr.hhplus.be.server.application.order: INFO
-
-    # 이벤트 처리 로깅
-    kr.hhplus.be.server.application.stock: INFO
-
-    # JPA SQL 출력 추가
+    kr.hhplus.be.server: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level traceId=%X{traceId} userId=%X{userId} %logger{36} - %msg%n"
