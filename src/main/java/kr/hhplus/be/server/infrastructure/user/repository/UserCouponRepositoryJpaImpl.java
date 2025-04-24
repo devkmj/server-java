@@ -2,6 +2,7 @@ package kr.hhplus.be.server.infrastructure.user.repository;
 
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import kr.hhplus.be.server.domain.user.repository.UserCouponRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,7 +24,12 @@ public class UserCouponRepositoryJpaImpl implements UserCouponRepository {
 
     @Override
     public UserCoupon save(UserCoupon userCoupon) {
-        return userCouponJpaRepository.save(userCoupon);
+        try {
+            return userCouponJpaRepository.save(userCoupon);
+        } catch (DataIntegrityViolationException e) {
+            // 중복 발급 방지: user_id + coupon_id 유니크 제약 위반
+            throw new IllegalStateException("이미 발급 받은 쿠폰입니다", e);
+        }
     }
 
     @Override

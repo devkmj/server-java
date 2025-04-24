@@ -24,10 +24,6 @@ public class CouponFacade {
         User user = userService.findByUserId(command.getUserId());
         Coupon coupon = couponService.findCouponById(command.getCouponId());
 
-        if (userCouponService.existsByUserIdAndCouponId(user.getId(), coupon.getId())) {
-            throw new IllegalStateException("이미 발급 받은 쿠폰입니다");
-        }
-
         UserCoupon newUserCoupon = couponService.issue(coupon, user);
         return newUserCoupon;
     }
