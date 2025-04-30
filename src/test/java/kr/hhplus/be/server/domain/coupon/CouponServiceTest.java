@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.application.coupon;
+package kr.hhplus.be.server.domain.coupon;
 
 import kr.hhplus.be.server.domain.coupon.service.CouponService;
 import kr.hhplus.be.server.domain.coupon.command.IssueCouponCommand;
@@ -18,11 +18,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -160,4 +160,5 @@ public class CouponServiceTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("유효하지 않은 쿠폰입니다");
     }
+
 }

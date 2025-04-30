@@ -1,12 +1,10 @@
-package kr.hhplus.be.server.application.order;
+package kr.hhplus.be.server.domain.order;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.hhplus.be.server.domain.order.command.OrderCommand;
 import kr.hhplus.be.server.domain.order.entity.Order;
 import kr.hhplus.be.server.domain.order.entity.OrderStatus;
 import kr.hhplus.be.server.domain.order.repository.OrderRepository;
-import kr.hhplus.be.server.domain.order.service.OrderItemService;
 import kr.hhplus.be.server.interfaces.api.order.request.OrderItemRequest;
 import kr.hhplus.be.server.interfaces.api.order.request.OrderRequest;
 import kr.hhplus.be.server.domain.balance.entity.Balance;
@@ -25,7 +23,6 @@ import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -76,8 +73,6 @@ public class OrderIntegrationTest {
     private CouponRepository couponRepository;
     @Autowired
     private UserCouponRepository userCouponRepository;
-    @Mock
-    private OrderFacade orderFacade;
 
     @BeforeEach
     void setUp() {
@@ -344,31 +339,31 @@ public class OrderIntegrationTest {
         assertThat(failCount.get()).isEqualTo(1);
     }
 
-   @DisplayName("주문 생성 후 재고 차감 성공 시 주문 상태는 COMFIRMED 이어야 한다")
-    @Test
-    void 주문_생성_후_재고_차감_성공_시_상태가_CONFIRMED() throws InterruptedException {
-
-        // given
-        Long userId = userRepository.findAll().get(0).getId();
-        Product product = productRepository.findAll().get(0);
-        int qty = 3;
-        var orderRequest = new OrderRequest(userId, List.of(new OrderItemRequest(product.getId(), qty, product.getPrice())), null);
-        OrderCommand command = OrderCommand.from(orderRequest);
-
-        // when
-        Order created = orderFacade.createOrder(command);
-        System.out.println("✅ created: " + created);
-        System.out.println("✅ userId = " + userId);
-        System.out.println("✅ productId = " + product.getId());
-        System.out.println("✅ command = " + command);
-
-        // then
-        // 일정 시간 대기 후 비동기 이벤트까지 처리되었는지 확인
-        Thread.sleep(100); // @Async나 EventQueue 처리 시간 고려
-        Order order = orderRepository.findById(created.getId()).get();
-        assertThat(order.getStatus()).isEqualTo(OrderStatus.CONFIRMED);
-
-    }
+//   @DisplayName("주문 생성 후 재고 차감 성공 시 주문 상태는 COMFIRMED 이어야 한다")
+//    @Test
+//    void 주문_생성_후_재고_차감_성공_시_상태가_CONFIRMED() throws InterruptedException {
+//
+//        // given
+//        Long userId = userRepository.findAll().get(0).getId();
+//        Product product = productRepository.findAll().get(0);
+//        int qty = 3;
+//        var orderRequest = new OrderRequest(userId, List.of(new OrderItemRequest(product.getId(), qty, product.getPrice())), null);
+//        OrderCommand command = OrderCommand.from(orderRequest);
+//
+//        // when
+//        Order created = orderFacade.createOrder(command);
+//        System.out.println("✅ created: " + created);
+//        System.out.println("✅ userId = " + userId);
+//        System.out.println("✅ productId = " + product.getId());
+//        System.out.println("✅ command = " + command);
+//
+//        // then
+//        // 일정 시간 대기 후 비동기 이벤트까지 처리되었는지 확인
+//        Thread.sleep(100); // @Async나 EventQueue 처리 시간 고려
+//        Order order = orderRepository.findById(created.getId()).get();
+//        assertThat(order.getStatus()).isEqualTo(OrderStatus.CONFIRMED);
+//
+//    }
 
     @DisplayName("주문 생성 시 재고 차감이 성공하면 주문 상태는 CONFIRMED여야 한다")
     @Test

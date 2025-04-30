@@ -3,9 +3,11 @@ package kr.hhplus.be.server.domain.user.entity;
 import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.entity.BaseTimeEntity;
 import kr.hhplus.be.server.domain.coupon.entity.Coupon;
+import lombok.Getter;
 
 import java.util.Objects;
 
+@Getter
 @Entity
 @Table(name = "user_coupon", indexes = {
         @Index(name = "idx_user_coupon_user_id", columnList = "userId"),
@@ -29,9 +31,6 @@ public class UserCoupon extends BaseTimeEntity {
     @Column(nullable = false)
     private boolean used;
 
-    @Version
-    private Long version;
-
     protected UserCoupon() {}
 
     public UserCoupon(Long userId, Coupon coupon) {
@@ -41,26 +40,8 @@ public class UserCoupon extends BaseTimeEntity {
     }
 
     public void use() {
-        if (this.used) {
-            throw new IllegalStateException("이미 사용된 쿠폰입니다.");
-        }
+        validateUsable();
         this.used = true;
-    }
-
-    public boolean isUsed() {
-        return used;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public Coupon getCoupon() {
-        return coupon;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public void validateUsable() {

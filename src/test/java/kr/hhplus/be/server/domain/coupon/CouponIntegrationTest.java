@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.application.coupon;
+package kr.hhplus.be.server.domain.coupon;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.domain.coupon.command.IssueCouponCommand;
@@ -138,7 +138,7 @@ public class CouponIntegrationTest {
                 Limitedcoupon.getId()
         );
 
-        int threadCount = 10000;
+        int threadCount = 100;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 

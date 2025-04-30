@@ -62,4 +62,8 @@ public class Product extends BaseTimeEntity {
             throw new IllegalArgumentException("판매중인 상품이 아닙니다.");
         }
     }
+
+    public int calculateTotalPrice(int qty) {
+        return this.price * qty;
+    }
 }

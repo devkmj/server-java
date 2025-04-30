@@ -30,7 +30,7 @@ public class OrderCommand {
         command.userId = request.getUserId();
         command.userCouponIds = request.getUserCouponIds();
         command.items = request.getItems().stream()
-                .map(item -> new OrderItemCommand(item.productId(), item.qty()))
+                .map(item -> new OrderItemCommand(item.getProductId(), item.getQty()))
                 .toList();
         return command;
     }

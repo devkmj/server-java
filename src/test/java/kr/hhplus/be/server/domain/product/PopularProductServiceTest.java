@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.application.product;
+package kr.hhplus.be.server.domain.product;
 
 import kr.hhplus.be.server.domain.order.entity.Order;
 import kr.hhplus.be.server.domain.order.entity.OrderItem;
@@ -11,8 +11,10 @@ import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import kr.hhplus.be.server.domain.product.entity.ProductStatus;
 import kr.hhplus.be.server.domain.product.repository.ProductSalesSummaryRepository;
 import kr.hhplus.be.server.domain.user.entity.User;
+import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import kr.hhplus.be.server.interfaces.api.product.response.PopularProductResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -47,25 +50,36 @@ public class PopularProductServiceTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Test
-    @DisplayName("최근 3일간 주문 데이터를 기준으로 인기 상품 Top5를 조회한다")
-    void 인기상품_조회() {
-        // given
-        Product product1 = productRepository.save(new Product("product1", 10000, ProductStatus.AVAILABLE));
-        Product product2 = productRepository.save(new Product("product2", 10020, ProductStatus.AVAILABLE));
-        Product product3 = productRepository.save(new Product("product3", 1300, ProductStatus.AVAILABLE));
-        Product product4 = productRepository.save(new Product("product4", 40000, ProductStatus.AVAILABLE));
-        Product product5 = productRepository.save(new Product("product5", 59000, ProductStatus.AVAILABLE));
-        Product product6 = productRepository.save(new Product("product6", 8200, ProductStatus.AVAILABLE));
+    @Autowired
+    private ProductSalesSummaryRepository summaryRepository;
+
+    private Product product1, product2, product3, product4, product5, product6;
+
+    @BeforeEach
+    void setUp() {
+        // 6개의 상품 생성
+        product1 = productRepository.save(new Product("product1", 10000, ProductStatus.AVAILABLE));
+        product2 = productRepository.save(new Product("product2", 10020, ProductStatus.AVAILABLE));
+        product3 = productRepository.save(new Product("product3", 1300, ProductStatus.AVAILABLE));
+        product4 = productRepository.save(new Product("product4", 40000, ProductStatus.AVAILABLE));
+        product5 = productRepository.save(new Product("product5", 59000, ProductStatus.AVAILABLE));
+        product6 = productRepository.save(new Product("product6", 8200, ProductStatus.AVAILABLE));
 
         User user = userRepository.save(new User("user"));
 
-        saveOrder(user, product1, 130);
-        saveOrder(user, product2, 121);
-        saveOrder(user, product3, 22);
-        saveOrder(user, product4, 803);
-        saveOrder(user, product5, 14);
+        // summary 테이블에 임의 판매량 기록
+        summaryRepository.save(new ProductSalesSummary(product1.getId(), 130L, LocalDateTime.now()));
+        summaryRepository.save(new ProductSalesSummary(product2.getId(), 121L, LocalDateTime.now()));
+        summaryRepository.save(new ProductSalesSummary(product3.getId(), 22L, LocalDateTime.now()));
+        summaryRepository.save(new ProductSalesSummary(product4.getId(), 803L, LocalDateTime.now()));
+        summaryRepository.save(new ProductSalesSummary(product5.getId(), 14L, LocalDateTime.now()));
+        summaryRepository.save(new ProductSalesSummary(product6.getId(), 4L, LocalDateTime.now()));
+    }
 
+
+    @Test
+    @DisplayName("최근 3일간 주문 데이터를 기준으로 인기 상품 Top5를 조회한다")
+    void 인기상품_조회() {
         // when
         List<PopularProductResponse> topProducts = productQueryRepository.findTop5PopularProducts();
 
@@ -79,8 +93,9 @@ public class PopularProductServiceTest {
     }
 
     private void saveOrder(User user, Product product, int qty) {
+        List<UserCoupon> coupons = Collections.emptyList();
         OrderItem item = new OrderItem(product,qty , product.getPrice());
-        Order order = Order.create(user, null, List.of(item), product.getPrice());
+        Order order = Order.createPending(user, List.of(item), coupons, product.getPrice());
         orderRepository.save(order);
     }
 

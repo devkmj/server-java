@@ -24,17 +24,9 @@ public class ProductStockService {
     }
 
     @Transactional
-    public void decreaseProductStocks(List<OrderItem> items) {
-        items.forEach(item -> {
-            ProductStock stock = productStockRepository.findByProductIdForUpdate(item.getProduct().getId())
-                    .orElseThrow(() -> new IllegalArgumentException("상품 재고 정보를 찾을 수 없습니다."));
-            stock.validateEnough(item.getQty());
-            stock.decrease(item.getQty());
-            if (stock.getStock() == 0) {
-                Product product = stock.getProduct();
-                product.markAsSoldOut();
-            }
-            productStockRepository.save(stock);
-        });
+    public void decreaseStock(Long productId, int qty) {
+        ProductStock stock = productStockRepository.findByProductIdForUpdate(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품 재고 정보를 찾을 수 없습니다."));
+        stock.decrease(qty);
     }
 }

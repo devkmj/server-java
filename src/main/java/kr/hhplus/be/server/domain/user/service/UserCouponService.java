@@ -47,13 +47,25 @@ public class UserCouponService {
         }
 
         return userCouponIds.stream()
-                .map(userCouponRepository::findById) // Optional<UserCoupon>
-                .filter(Optional::isPresent)         // 존재하는 것만 필터
-                .map(Optional::get)                  // 실제 UserCoupon 객체로 변환
+                .map(userCouponRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    public void restore(List<UserCoupon> userCoupons) {
+    public List<UserCoupon> retrieveCouponsLock(List<Long> userCouponIds) {
+        if (userCouponIds == null) {
+            return Collections.emptyList();
+        }
+
+        return userCouponIds.stream()
+                .map(userCouponRepository::findByIdForUpdate)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    public void rollbackUserCoupons(List<UserCoupon> userCoupons) {
         userCoupons.forEach(userCouponRepository::save);
     }
 }

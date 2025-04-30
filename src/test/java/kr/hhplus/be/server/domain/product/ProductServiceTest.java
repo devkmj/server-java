@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.application.product;
+package kr.hhplus.be.server.domain.product;
 
 import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;
 import kr.hhplus.be.server.domain.product.service.ProductService;

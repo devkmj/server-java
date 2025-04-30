@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.application.order;
+package kr.hhplus.be.server.domain.order;
 
 import kr.hhplus.be.server.domain.order.entity.Order;
 import kr.hhplus.be.server.domain.order.entity.OrderItem;
@@ -7,6 +7,7 @@ import kr.hhplus.be.server.domain.order.service.OrderService;
 import kr.hhplus.be.server.domain.product.entity.Product;
 import kr.hhplus.be.server.domain.product.entity.ProductStatus;
 import kr.hhplus.be.server.domain.user.entity.User;
+import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,10 +41,10 @@ public class OrderServiceTest {
         int totalPrice = product.getPrice() * qty;
 
         OrderItem orderItem = new OrderItem(product, qty, product.getPrice());
-
+        List<UserCoupon> userCoupons = Collections.emptyList();
         // when
-        Order order = orderService.create(user, List.of(orderItem), null, totalPrice);
-
+        Order order = orderService.createPendingOrder(user, List.of(orderItem), userCoupons, totalPrice);
+        System.out.println(order);
         // then
         assertThat(order).isNotNull();
         assertThat(order.getOrderItems()).hasSize(1);

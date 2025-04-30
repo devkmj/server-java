@@ -3,8 +3,11 @@ package kr.hhplus.be.server.domain.balance.entity;
 import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.entity.BaseTimeEntity;
 import kr.hhplus.be.server.domain.order.exception.InsufficientBalanceException;
+import kr.hhplus.be.server.domain.user.entity.User;
+import lombok.Getter;
 
 @Entity
+@Getter
 @Table(name = "balance", indexes = {
         @Index(name = "idx_balance_user_id", columnList = "userId"),
         @Index(name = "idx_balance_user_id_balance", columnList = "userId, balance")
@@ -20,9 +23,6 @@ public class Balance extends BaseTimeEntity {
 
     @Column(nullable = false)
     private Integer balance;
-
-    @Version
-    private Long version;
 
     protected Balance() {}
 
@@ -61,19 +61,7 @@ public class Balance extends BaseTimeEntity {
         if(amount <= 0) {
             throw new IllegalArgumentException("충전 금액은 0보다 커야 합니다");
         }
-
         this.balance += amount;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public Integer getBalance() {
-        return balance;
-    }
 }
