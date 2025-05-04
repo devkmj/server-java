@@ -11,4 +11,5 @@ public interface UserCouponJpaRepository extends JpaRepository<UserCoupon, Long>
     boolean existsByUserIdAndCouponId(Long userId, Long couponId);
     List<UserCoupon> findAll();
     Optional<UserCoupon> findByIdForUpdate(Long userId);
+    List<UserCoupon> findAllByIdInForUpdate(List<Long> userCouponIds);
 }

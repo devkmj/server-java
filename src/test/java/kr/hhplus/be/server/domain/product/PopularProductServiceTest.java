@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -68,12 +69,12 @@ public class PopularProductServiceTest {
         User user = userRepository.save(new User("user"));
 
         // summary 테이블에 임의 판매량 기록
-        summaryRepository.save(new ProductSalesSummary(product1.getId(), 130L, LocalDateTime.now()));
-        summaryRepository.save(new ProductSalesSummary(product2.getId(), 121L, LocalDateTime.now()));
-        summaryRepository.save(new ProductSalesSummary(product3.getId(), 22L, LocalDateTime.now()));
-        summaryRepository.save(new ProductSalesSummary(product4.getId(), 803L, LocalDateTime.now()));
-        summaryRepository.save(new ProductSalesSummary(product5.getId(), 14L, LocalDateTime.now()));
-        summaryRepository.save(new ProductSalesSummary(product6.getId(), 4L, LocalDateTime.now()));
+        summaryRepository.save(new ProductSalesSummary(product1.getId(), 130L, LocalDate.now()));
+        summaryRepository.save(new ProductSalesSummary(product2.getId(), 121L, LocalDate.now()));
+        summaryRepository.save(new ProductSalesSummary(product3.getId(), 22L, LocalDate.now()));
+        summaryRepository.save(new ProductSalesSummary(product4.getId(), 803L, LocalDate.now()));
+        summaryRepository.save(new ProductSalesSummary(product5.getId(), 14L, LocalDate.now()));
+        summaryRepository.save(new ProductSalesSummary(product6.getId(), 4L, LocalDate.now()));
     }
 
 
@@ -104,7 +105,7 @@ public class PopularProductServiceTest {
     void 인기_상품_요약_테이블_조회() {
         // given
         Product product = productRepository.save(new Product("summary-test", 10000, ProductStatus.AVAILABLE));
-        productSalesSummaryRepository.save(new ProductSalesSummary(product.getId(), 500L, LocalDateTime.now())); // 500개 판매된 상품
+        productSalesSummaryRepository.save(new ProductSalesSummary(product.getId(), 500L, LocalDate.now())); // 500개 판매된 상품
 
         // when
         List<PopularProductResponse> result = productQueryRepository.findTop5PopularProducts();

@@ -10,7 +10,7 @@ import kr.hhplus.be.server.domain.product.validator.ProductValidator;
         @Index(name = "idx_product_created_at", columnList = "created_at"),
         @Index(name = "idx_status_created_at", columnList = "status, created_at")
 })
-public class Product extends BaseTimeEntity {
+public class Product extends BaseTimeEntity<Product> {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

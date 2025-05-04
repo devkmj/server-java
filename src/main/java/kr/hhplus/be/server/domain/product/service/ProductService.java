@@ -11,7 +11,7 @@ import kr.hhplus.be.server.domain.product.repository.ProductSalesSummaryReposito
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,15 +51,16 @@ public class ProductService {
     }
 
     public void updateProductSalesSummary(Product product, int qty) {
-        Optional<ProductSalesSummary> existing = productSalesSummaryRepository.findByProductId(product.getId());
+        LocalDate today = LocalDate.now();
+        Optional<ProductSalesSummary> existing = productSalesSummaryRepository.findByProductIdAndOrderedAt(product.getId(), today);
 
         if (existing.isPresent()) {
-            productSalesSummaryRepository.incrementQty(product.getId(), (long) qty);
+            productSalesSummaryRepository.incrementQty(product.getId(), (long) qty, today);
         } else {
             ProductSalesSummary summary = new ProductSalesSummary(
                     product.getId(),
                     (long) qty,
-                    LocalDateTime.now()
+                    today
             );
             productSalesSummaryRepository.save(summary);
         }

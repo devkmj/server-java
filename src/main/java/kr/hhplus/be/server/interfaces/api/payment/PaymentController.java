@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.interfaces.api.payment;
 
-import kr.hhplus.be.server.application.payment.PaymentFacade;
-import kr.hhplus.be.server.domain.payment.PaymentService;
+import kr.hhplus.be.server.application.payment.PaymentFacadeService;
 import kr.hhplus.be.server.interfaces.api.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/orders")
 @RequiredArgsConstructor
 public class PaymentController {
-    private final PaymentFacade paymentFacade;
+    private final PaymentFacadeService paymentFacade;
 
     @PostMapping("/{orderId}/pay")
     public ResponseEntity<ApiResponse> pay(

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
         @Index(name = "idx_coupon_valid_range", columnList = "validFrom, validUntil"),
         @Index(name = "idx_coupon_created_at", columnList = "created_at")
 })
-public class Coupon extends BaseTimeEntity {
+public class Coupon extends BaseTimeEntity<Coupon> {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

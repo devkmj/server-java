@@ -54,15 +54,10 @@ public class UserCouponService {
     }
 
     public List<UserCoupon> retrieveCouponsLock(List<Long> userCouponIds) {
-        if (userCouponIds == null) {
+        if (userCouponIds == null || userCouponIds.isEmpty()) {
             return Collections.emptyList();
         }
-
-        return userCouponIds.stream()
-                .map(userCouponRepository::findByIdForUpdate)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+        return userCouponRepository.findAllByIdInForUpdate(userCouponIds);
     }
 
     public void rollbackUserCoupons(List<UserCoupon> userCoupons) {

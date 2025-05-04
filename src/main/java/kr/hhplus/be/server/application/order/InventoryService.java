@@ -2,6 +2,7 @@ package kr.hhplus.be.server.application.order;
 
 import kr.hhplus.be.server.domain.order.entity.Order;
 import kr.hhplus.be.server.domain.order.service.OrderService;
+import kr.hhplus.be.server.domain.product.service.ProductService;
 import kr.hhplus.be.server.domain.product.service.ProductStockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ public class InventoryService {
 
     private final OrderService orderService;
     private final ProductStockService stockService;
+    private final ProductService productService;
 
     /**
      * 지정된 주문의 모든 아이템에 대해 비관적 락을 걸고 재고 차감
@@ -21,9 +23,10 @@ public class InventoryService {
     @Transactional
     public void decreaseStockForOrder(Long orderId) {
         Order order = orderService.getOrder(orderId);
-        order.getItems().forEach(item ->
-                stockService.decreaseStock(item.getProductId(), item.getQty())
-        );
+        order.getItems().forEach(item -> {
+            stockService.decreaseStock(item.getProductId(), item.getQty());
+            // productService.updateProductSalesSummary(item.getProduct(), item.getQty()); // 인기 상품 요약 테이블 업데이트
+        });
     }
 
     /**

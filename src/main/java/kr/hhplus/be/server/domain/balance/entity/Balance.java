@@ -12,7 +12,7 @@ import lombok.Getter;
         @Index(name = "idx_balance_user_id", columnList = "userId"),
         @Index(name = "idx_balance_user_id_balance", columnList = "userId, balance")
 })
-public class Balance extends BaseTimeEntity {
+public class Balance extends BaseTimeEntity<Balance> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

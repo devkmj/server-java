@@ -57,6 +57,8 @@ dependencies {
 
 	testCompileOnly("org.projectlombok:lombok:1.18.30")
 	testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
+
+	implementation("org.redisson:redisson-spring-boot-starter:3.17.6")
 }
 
 tasks.withType<Test> {

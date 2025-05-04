@@ -12,7 +12,7 @@ import java.util.List;
 @Table(name = "users", indexes = {
         @Index(name = "idx_user_name", columnList = "name")
 })
-public class User extends BaseTimeEntity {
+public class User extends BaseTimeEntity<User> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
