@@ -3,6 +3,7 @@ package kr.hhplus.be.server.domain.user.service;
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import kr.hhplus.be.server.domain.user.repository.UserCouponRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +32,7 @@ public class UserCouponService {
         return userCouponRepository.existsByUserIdAndCouponId(userId, couponId);
     }
 
+    @Transactional
     public void useUserCoupons(List<UserCoupon> coupons) {
         coupons.forEach(coupon -> {
             Optional<UserCoupon> userCouponOptional = userCouponRepository.findById(coupon.getId());
@@ -53,11 +55,12 @@ public class UserCouponService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public List<UserCoupon> retrieveCouponsLock(List<Long> userCouponIds) {
         if (userCouponIds == null || userCouponIds.isEmpty()) {
             return Collections.emptyList();
         }
-        return userCouponRepository.findAllByIdInForUpdate(userCouponIds);
+        return userCouponRepository.findAllByIdIn(userCouponIds);
     }
 
     public void rollbackUserCoupons(List<UserCoupon> userCoupons) {

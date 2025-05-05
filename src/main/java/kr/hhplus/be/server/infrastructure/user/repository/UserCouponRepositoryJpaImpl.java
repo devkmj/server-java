@@ -50,12 +50,7 @@ public class UserCouponRepositoryJpaImpl implements UserCouponRepository {
     }
 
     @Override
-    public Optional<UserCoupon> findByIdForUpdate(Long userId) {
-        return userCouponJpaRepository.findByIdForUpdate(userId);
-    }
-
-    @Override
-    public List<UserCoupon> findAllByIdInForUpdate(List<Long> userCouponIds) {
-        return userCouponJpaRepository.findAllByIdInForUpdate(userCouponIds);
+    public List<UserCoupon> findAllByIdIn(List<Long> ids) {
+        return userCouponJpaRepository.findAllByIdIn(ids);
     }
 }

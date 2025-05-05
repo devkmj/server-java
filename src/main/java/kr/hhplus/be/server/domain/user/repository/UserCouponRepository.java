@@ -4,6 +4,7 @@ import jakarta.persistence.LockModeType;
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,9 +22,6 @@ public interface UserCouponRepository {
     void deleteAll();
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<UserCoupon> findByIdForUpdate(Long aLong);
-
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT uc FROM UserCoupon uc WHERE uc.id IN :ids")
-    List<UserCoupon> findAllByIdInForUpdate(List<Long> userCouponIds);
+    List<UserCoupon> findAllByIdIn(@Param("ids") List<Long> ids);
 }
