@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Collections;
@@ -31,12 +32,11 @@ public class PaymentServiceTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private ApplicationEventPublisher publisher;
+
     @InjectMocks private PaymentService paymentService;
 
-    @BeforeEach
-    void setUp() {
-        paymentService = new PaymentService();
-    }
 
     private Order createPendingOrder(int totalPrice) {
         User mockUser = new User(1L, "테스트유저");
