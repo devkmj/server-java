@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.application.order.listener;
+package kr.hhplus.be.server.application.order;
 
 import kr.hhplus.be.server.domain.order.event.OrderConfirmedEvent;
 import org.springframework.stereotype.Component;

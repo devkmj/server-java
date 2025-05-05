@@ -19,9 +19,9 @@ public class WebConfig implements WebMvcConfigurer {
         return reg;
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AuthInterceptor())
-                .addPathPatterns("/orders");
-    }
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(new AuthInterceptor())
+//                .addPathPatterns("/orders");
+//    }
 }

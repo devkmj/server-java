@@ -28,7 +28,7 @@ public class OrderPlacementService {
         User user = userService.findByUserId(cmd.getUserId());
         List<UserCoupon> userCoupons = userCouponService.retrieveCoupons(cmd.getUserCouponIds());
 
-        OrderDto dto = orderCalculationService.calculateOrderItems(cmd.getItems());
+        OrderDto dto = orderCalculationService.calculateOrderItems(cmd.getItems(), userCoupons);
 
         Order order = Order.createPending(
                 user,

@@ -114,7 +114,6 @@ public class Order extends BaseTimeEntity<Order> {
     public void markAsConfirmed() {
         ensureStatus(OrderStatus.PAID);
         this.status = OrderStatus.CONFIRMED;
-        registerEvent(new OrderConfirmedEvent(this.getId()));
     }
 
     /**
@@ -125,7 +124,6 @@ public class Order extends BaseTimeEntity<Order> {
             throw new IllegalStateException("이미 완료된 주문입니다: " + this.status);
         }
         this.status = OrderStatus.FAILED;
-        registerEvent(new OrderFailedEvent(this.getId(), reason));
     }
 
     /**
@@ -146,9 +144,23 @@ public class Order extends BaseTimeEntity<Order> {
 
     private void ensureStatus(OrderStatus expected) {
         if (this.status != expected) {
-            throw new IllegalStateException(
-                    String.format("잘못된 상태 전이: 현재=%s, 기대=%s", this.status, expected)
-            );
+            throw new IllegalStateException("주문 상태가 올바르지 않습니다");
         }
+    }
+
+    public void addItem(OrderItem orderItem) {
+        this.items.add(orderItem);
+        orderItem.assignTo(this);
+    }
+
+    /**
+     * user와 빈 주문 인스턴스를 반환
+     */
+    public static Order of(User user) {
+        Order order = new Order();
+        order.user = user;
+        order.status = OrderStatus.PENDING;
+        order.totalPrice = 0;
+        return order;
     }
 }
