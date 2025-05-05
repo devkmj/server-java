@@ -42,3 +42,12 @@ logging:
 
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level traceId=%X{traceId} userId=%X{userId} %logger{36} - %msg%n"
+
+---
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: secret
+      timeout: 5000              # 연결 타임아웃(ms)
