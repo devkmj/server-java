@@ -31,26 +31,22 @@ public class InventoryService {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void decreaseStockWithDistributedLock(Long orderId, List<Long> productIds) {
-        try{
-            logger.info("order Id = " + orderId);
-            List<String> keys = productIds.stream()
-                    .map(id -> "lock:product:" + id)
-                    .toList();
-            logger.info("MultiLock key {}", keys);
+        logger.info("order Id = " + orderId);
+        List<String> keys = productIds.stream()
+                .map(id -> "lock:product:" + id)
+                .toList();
+        logger.info("MultiLock key {}", keys);
 
-            redissonLockService.lock(
-                    keys,
-                    (int) LOCK_WAIT_SECONDS,
-                    (int) LOCK_LEASE_SECONDS,
-                    TimeUnit.SECONDS,
-                    () -> {
-                        doDecreaseStockInNewTx(orderId);
-                        return null;
-                    }
-            );
-        }catch (Exception e){
-            logger.error(e.getMessage(), e);
-        }
+        redissonLockService.lock(
+                keys,
+                (int) LOCK_WAIT_SECONDS,
+                (int) LOCK_LEASE_SECONDS,
+                TimeUnit.SECONDS,
+                () -> {
+                    doDecreaseStockInNewTx(orderId);
+                    return null;
+                }
+        );
     }
 
     protected void doDecreaseStockInNewTx(Long orderId) {
