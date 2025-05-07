@@ -39,6 +39,7 @@ logging:
     kr.hhplus.be.server: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.redisson: DEBUG
 
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level traceId=%X{traceId} userId=%X{userId} %logger{36} - %msg%n"
@@ -47,7 +48,17 @@ logging:
 spring:
   data:
     redis:
-      host: localhost
-      port: 6379
-      password: secret
-      timeout: 5000              # 연결 타임아웃(ms)
+      cluster:
+        nodes:
+          - 127.0.0.1:7100
+          - 127.0.0.1:7001
+          - 127.0.0.1:7002
+          - 127.0.0.1:7003
+          - 127.0.0.1:7004
+          - 127.0.0.1:7005
+      timeout: 5000
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 10
+          min-idle: 2
