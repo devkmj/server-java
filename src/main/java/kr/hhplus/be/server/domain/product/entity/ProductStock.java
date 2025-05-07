@@ -18,6 +18,7 @@ public class ProductStock extends BaseTimeEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @Column(nullable = false)
     private int stock;
 
     protected ProductStock() {}

@@ -25,6 +25,7 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    @Transactional
     public Order save(Order order) {
         return orderRepository.save(order);
     }
@@ -39,6 +40,5 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(()-> new IllegalArgumentException("잘못된 접근입니다."));
         order.markAsConfirmed();
-        orderRepository.save(order);
     }
 }

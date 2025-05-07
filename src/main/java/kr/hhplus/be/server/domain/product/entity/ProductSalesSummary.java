@@ -32,7 +32,7 @@ public class ProductSalesSummary {
         this.orderedAt = orderedAt;
     }
 
-    public void increaseQty(long qty) {
+    public void increaseQty(int qty) {
         this.totalQty += qty;
     }
 }

@@ -14,7 +14,7 @@ import lombok.Getter;
         @Index(name = "idx_order_item_product_id" ,columnList = "productId"),
         @Index(name = "idx_order_item_price" ,columnList = "price")
 })
-public class OrderItem extends BaseTimeEntity {
+public class OrderItem extends BaseTimeEntity<OrderItem> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,7 +14,7 @@ import java.util.List;
 @Service
 public class ProductStockService {
 
-    private final ProductStockRepository productStockRepository; 
+    private final ProductStockRepository productStockRepository;
 
     public ProductStockService(ProductStockRepository productStockRepository) {
         this.productStockRepository = productStockRepository;
