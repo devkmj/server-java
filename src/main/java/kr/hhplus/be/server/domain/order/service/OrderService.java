@@ -41,4 +41,10 @@ public class OrderService {
                 .orElseThrow(()-> new IllegalArgumentException("잘못된 접근입니다."));
         order.markAsConfirmed();
     }
+
+    public void markAsPaid(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(()-> new IllegalArgumentException("잘못된 접근입니다."));
+        order.markAsPaid();
+    }
 }
