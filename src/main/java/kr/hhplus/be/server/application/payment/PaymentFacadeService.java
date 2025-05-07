@@ -29,12 +29,11 @@ public class PaymentFacadeService {
             List<UserCoupon> userCoupons = couponService.retrieveCouponsLock(order.getUserCouponIds());
             Balance balance = balanceService.findByUserId(order.getUser().getId());
             paymentService.applyPayment(order, userCoupons, balance);
-            orderService.save(order);
         } catch (Exception e) {
             order.markAsFailed(e.getMessage());
-            orderService.save(order);
             throw e;
+        } finally {
+            orderService.save(order);
         }
-
     }
 }

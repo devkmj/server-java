@@ -105,14 +105,18 @@ public class Order extends BaseTimeEntity<Order> {
     public void markAsPaid() {
         ensureStatus(OrderStatus.PENDING);
         this.status = OrderStatus.PAID;
-        registerEvent(new PaymentCompletedEvent(this.getId()));
+        List<Long> productIds = items.stream()
+                                    .map(OrderItem::getProductId)
+                                    .sorted()
+                                    .toList();
+        registerEvent(new PaymentCompletedEvent(this.getId(), productIds));
     }
 
     /**
      * 재고 차감 성공 시 상태 전이 및 이벤트 등록
      */
     public void markAsConfirmed() {
-        ensureStatus(OrderStatus.PAID); 
+        ensureStatus(OrderStatus.PAID);
         this.status = OrderStatus.CONFIRMED;
     }
 
