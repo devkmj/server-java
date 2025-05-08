@@ -3,6 +3,7 @@ package kr.hhplus.be.server.domain.user.service;
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import kr.hhplus.be.server.domain.user.repository.UserCouponRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +32,7 @@ public class UserCouponService {
         return userCouponRepository.existsByUserIdAndCouponId(userId, couponId);
     }
 
+    @Transactional
     public void useUserCoupons(List<UserCoupon> coupons) {
         coupons.forEach(coupon -> {
             Optional<UserCoupon> userCouponOptional = userCouponRepository.findById(coupon.getId());
@@ -47,13 +49,21 @@ public class UserCouponService {
         }
 
         return userCouponIds.stream()
-                .map(userCouponRepository::findById) // Optional<UserCoupon>
-                .filter(Optional::isPresent)         // 존재하는 것만 필터
-                .map(Optional::get)                  // 실제 UserCoupon 객체로 변환
+                .map(userCouponRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    public void restore(List<UserCoupon> userCoupons) {
+    @Transactional
+    public List<UserCoupon> retrieveCouponsLock(List<Long> userCouponIds) {
+        if (userCouponIds == null || userCouponIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return userCouponRepository.findAllByIdIn(userCouponIds);
+    }
+
+    public void rollbackUserCoupons(List<UserCoupon> userCoupons) {
         userCoupons.forEach(userCouponRepository::save);
     }
 }
