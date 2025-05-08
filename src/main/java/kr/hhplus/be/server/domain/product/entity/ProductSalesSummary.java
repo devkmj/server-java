@@ -1,59 +1,42 @@
 package kr.hhplus.be.server.domain.product.entity;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.domain.common.entity.BaseTimeEntity;
+import lombok.Getter;
 
-
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
+@Getter
 @Table(name = "product_sales_summary", indexes = {
         @Index(name ="idx_product_sales_summary_product_id", columnList = "productId"),
         @Index(name ="idx_product_sales_summary_total_qty", columnList = "totalQty"),
-        @Index(name ="idx_product_sales_summary_last_sold_at", columnList = "lastSoldAt"),
+        @Index(name ="idx_product_sales_summary_ordered_at", columnList = "orderedAt"),
 })
-public class ProductSalesSummary {
+public class ProductSalesSummary extends BaseTimeEntity<ProductSalesSummary> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "product_id")
+    @Column(name="productId", nullable = false)
     private Long productId;
 
-    @Column(name = "total_qty", nullable = false)
+    @Column(nullable = false)
     private Long totalQty;
 
-    @Column(name = "last_sold_at")
-    private LocalDateTime lastSoldAt;
+    @Column(nullable = false)
+    private LocalDate orderedAt;
 
     protected ProductSalesSummary() {}
 
-    public ProductSalesSummary(Long productId, Long totalQty, LocalDateTime lastSoldAt) {
+    public ProductSalesSummary(Long productId, Long totalQty, LocalDate orderedAt) {
         this.productId = productId;
         this.totalQty = totalQty;
-        this.lastSoldAt = lastSoldAt;
+        this.orderedAt = orderedAt;
     }
 
-    // Getters
-    public Long getProductId() {
-        return productId;
-    }
-
-    public Long getTotalQty() {
-        return totalQty;
-    }
-
-    public LocalDateTime getLastSoldAt() {
-        return lastSoldAt;
-    }
-
-    // 업데이트 로직
-    public void increaseQty(long qty) {
+    public void increaseQty(int qty) {
         this.totalQty += qty;
-        this.lastSoldAt = LocalDateTime.now();
-    }
-
-    public Long getId() {
-        return id;
     }
 }

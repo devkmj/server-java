@@ -4,10 +4,11 @@ import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserCouponJpaRepository extends JpaRepository<UserCoupon, Long> {
     List<UserCoupon> findByUserId(Long userId);
-    List<UserCoupon> findByUserIdAndCouponId(Long userId, Long couponId);
     boolean existsByUserIdAndCouponId(Long userId, Long couponId);
     List<UserCoupon> findAll();
+    List<UserCoupon> findAllByIdIn(List<Long> ids);
 }

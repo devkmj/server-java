@@ -5,5 +5,5 @@ public enum ProductStatus{
     SOLD_OUT,        // 품절
     DISCONTINUED,    // 판매 중지
     ON_SALE,         // 세일
-    DELETE           // 삭제
+    DELETED           // 삭제
 }
