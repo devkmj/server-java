@@ -46,9 +46,6 @@ public class PopularProductServiceTest {
     private OrderRepository orderRepository;
 
     @Autowired
-    private OrderItemRepository orderItemRepository;
-
-    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -105,7 +102,7 @@ public class PopularProductServiceTest {
     void 인기_상품_요약_테이블_조회() {
         // given
         Product product = productRepository.save(new Product("summary-test", 10000, ProductStatus.AVAILABLE));
-        productSalesSummaryRepository.save(new ProductSalesSummary(product.getId(), 500L, LocalDate.now())); // 500개 판매된 상품
+        productSalesSummaryRepository.save(new ProductSalesSummary(product.getId(), 5000L, LocalDate.now())); // 500개 판매된 상품
 
         // when
         List<PopularProductResponse> result = productQueryRepository.findTop5PopularProducts();
