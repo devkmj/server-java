@@ -30,7 +30,8 @@ public class ProductQueryRepositoryImpl implements ProductQueryRepository {
                           ON p.id = s.productId
                         WHERE s.orderedAt >= :cutoff
                           AND p.status <> :deletedStatus
-                        ORDER BY s.totalQty DESC, 
+                        GROUP BY p.id, p.name, p.price
+                        ORDER BY SUM(s.totalQty) DESC,
                                  COALESCE(s.updatedAt, s.createdAt) DESC
                         """,
                         PopularProductResponse.class
