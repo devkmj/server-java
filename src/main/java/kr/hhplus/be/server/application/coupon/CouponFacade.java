@@ -25,6 +25,7 @@ public class CouponFacade {
         Coupon coupon = couponService.findCouponById(command.getCouponId());
 
         UserCoupon newUserCoupon = couponService.issue(coupon, user);
+        userCouponService.save(newUserCoupon);
         return newUserCoupon;
     }
 }

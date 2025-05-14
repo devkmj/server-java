@@ -22,6 +22,6 @@ public class CouponController {
         IssueCouponCommand command = IssueCouponCommand.from(issueCouponRequest);
         UserCoupon userCoupon = couponFacade.issueCoupon(command);
         UserCouponResponse response = UserCouponResponse.from(userCoupon);
-        return ResponseEntity.ok(ApiResponse.success("쿠폰 발급 성공", null));
+        return ResponseEntity.ok(ApiResponse.success("쿠폰 발급 성공", response));
     }
 }
