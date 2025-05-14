@@ -11,7 +11,6 @@ public record OrderResponse(
         Long userId,
         int totalPrice,
         String orderStatus,
-        LocalDateTime createdAt,
         List<OrderItemResponse> items,
         List<Long> usedCouponIds
 ) {
@@ -21,7 +20,6 @@ public record OrderResponse(
                 order.getUser().getId(),
                 order.getTotalPrice(),
                 order.getStatus().name(),
-                order.getCreateTime(),
                 order.getOrderItems().stream()
                         .map(OrderItemResponse::from)
                         .toList(),

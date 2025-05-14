@@ -1,15 +1,18 @@
 package kr.hhplus.be.server.domain.user.entity;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.domain.balance.entity.Balance;
 import kr.hhplus.be.server.domain.common.entity.BaseTimeEntity;
+import lombok.Getter;
 
 import java.util.List;
 
 @Entity
+@Getter
 @Table(name = "users", indexes = {
         @Index(name = "idx_user_name", columnList = "name")
 })
-public class User extends BaseTimeEntity {
+public class User extends BaseTimeEntity<User> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,14 +29,6 @@ public class User extends BaseTimeEntity {
     public User(Long id, String name) {
         this.id = id;
         this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public boolean ownsCoupon(List<UserCoupon> coupons) {

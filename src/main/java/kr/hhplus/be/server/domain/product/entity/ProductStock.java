@@ -18,6 +18,7 @@ public class ProductStock extends BaseTimeEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @Column(nullable = false)
     private int stock;
 
     protected ProductStock() {}
@@ -36,6 +37,9 @@ public class ProductStock extends BaseTimeEntity {
     public void decrease(int qty) {
         validateEnough(qty);
         this.stock -= qty;
+        if(this.stock == 0) {
+            product.markAsSoldOut();
+        }
     }
 
     public boolean hasEnough(int qty) {

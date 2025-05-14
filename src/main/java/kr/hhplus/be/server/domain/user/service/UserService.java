@@ -17,4 +17,12 @@ public class UserService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다"));
     }
+
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
+    public void charge(Long userId, int amount) {
+
+    }
 }

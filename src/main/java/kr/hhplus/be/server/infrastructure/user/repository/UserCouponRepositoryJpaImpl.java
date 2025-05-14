@@ -3,11 +3,13 @@ package kr.hhplus.be.server.infrastructure.user.repository;
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import kr.hhplus.be.server.domain.user.repository.UserCouponRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Component
 @Repository
 public class UserCouponRepositoryJpaImpl implements UserCouponRepository {
 
@@ -45,5 +47,10 @@ public class UserCouponRepositoryJpaImpl implements UserCouponRepository {
     @Override
     public void deleteAll() {
         userCouponJpaRepository.deleteAll();
+    }
+
+    @Override
+    public List<UserCoupon> findAllByIdIn(List<Long> ids) {
+        return userCouponJpaRepository.findAllByIdIn(ids);
     }
 }
