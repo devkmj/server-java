@@ -2,7 +2,7 @@ package kr.hhplus.be.server.domain.product.service;
 
 import kr.hhplus.be.server.domain.product.entity.Product;
 import kr.hhplus.be.server.domain.product.entity.ProductSalesSummary;
-import kr.hhplus.be.server.domain.product.repository.ProductSalesSummaryRepository;
+import kr.hhplus.be.server.domain.product.repository.ProductSalesSummaryRepository; 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

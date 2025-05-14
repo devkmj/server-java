@@ -157,5 +157,4 @@ public class ProductServiceTest {
         // then
         assertThat(result).isEqualTo(ProductResponse.from(product));
     }
-
 }

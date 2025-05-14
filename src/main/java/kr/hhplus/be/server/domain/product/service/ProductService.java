@@ -9,6 +9,7 @@ import kr.hhplus.be.server.domain.product.repository.ProductQueryRepository;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import kr.hhplus.be.server.domain.product.repository.ProductSalesSummaryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -40,6 +41,7 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundException(productId));
     }
 
+    @Cacheable("top5Last3d")
     public List<PopularProductResponse> getTop5PopularProducts() {
         return productQueryRepository.findTop5PopularProducts();
     }

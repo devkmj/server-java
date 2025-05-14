@@ -271,7 +271,7 @@ public class OrderIntegrationTest {
     @DisplayName("주문 생성 시 상품의 상태가 삭제일 경우 예외가 발생한다")
     void 상품_삭제_예외() throws Exception {
         User user = userRepository.findAll().get(0);
-        Product deletedProduct = productRepository.save(new Product("삭제 상품", 10000, ProductStatus.DELETE));
+        Product deletedProduct = productRepository.save(new Product("삭제 상품", 10000, ProductStatus.DELETED));
         productStockRepository.save(new ProductStock(deletedProduct, 10));
 
         var orderRequest = new OrderRequest(user.getId(),

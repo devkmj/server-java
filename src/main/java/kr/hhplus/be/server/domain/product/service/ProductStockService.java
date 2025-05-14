@@ -29,6 +29,6 @@ public class ProductStockService {
     public void decreaseStock(Long productId, int qty) {
         ProductStock productStock = productStockRepository.findByProductId(productId)
                 .orElseThrow(() -> new IllegalArgumentException("상품 재고 정보를 찾을 수 없습니다."));
-        productStock.decrease(qty); 
+        productStock.decrease(qty);
     }
 }

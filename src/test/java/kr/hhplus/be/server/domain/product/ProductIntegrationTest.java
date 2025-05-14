@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.domain.product.entity.Product;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import kr.hhplus.be.server.domain.product.entity.ProductStatus;
+import kr.hhplus.be.server.interfaces.api.product.response.PopularProductResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -78,5 +81,19 @@ public class ProductIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("상품 조회 실패"))
                 .andExpect(jsonPath("$.data").value("존재하지 않는 상품입니다."));
+    }
+
+    @Test
+    @DisplayName("GET /popular → 인기 상품 5개 반환")
+    void getPopularProducts() throws Exception {
+        // when / then
+        mockMvc.perform(get("/products/popular")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("인기 상품 조회 성공"))
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data[0].productId").value(anyLong()))
+                .andExpect(jsonPath("$.data[0].name").value(anyString()))
+                .andExpect(jsonPath("$.data[1].totalSold").value(anyInt()));
     }
 }
