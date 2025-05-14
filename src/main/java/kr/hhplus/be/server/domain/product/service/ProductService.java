@@ -4,17 +4,12 @@ import kr.hhplus.be.server.interfaces.api.product.response.PopularProductRespons
 import kr.hhplus.be.server.interfaces.api.product.response.ProductResponse;
 import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;
 import kr.hhplus.be.server.domain.product.entity.Product;
-import kr.hhplus.be.server.domain.product.entity.ProductSalesSummary;
 import kr.hhplus.be.server.domain.product.repository.ProductQueryRepository;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
-import kr.hhplus.be.server.domain.product.repository.ProductSalesSummaryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,7 +17,6 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductQueryRepository productQueryRepository;
 
     public List<ProductResponse> getAllProducts() {
         return productRepository.findAll().stream()
@@ -41,8 +35,5 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundException(productId));
     }
 
-    @Cacheable("top5Last3d")
-    public List<PopularProductResponse> getTop5PopularProducts() {
-        return productQueryRepository.findTop5PopularProducts();
-    }
+
 }
