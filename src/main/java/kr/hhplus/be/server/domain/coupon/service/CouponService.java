@@ -10,6 +10,7 @@ import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -37,5 +38,22 @@ public class CouponService {
     public UserCoupon issue(Coupon coupon, User user) {
         UserCoupon newUserCoupon = coupon.issue(user);
         return newUserCoupon;
+    }
+
+    /**
+     * 신규 쿠폰을 생성하고 저장합니다.
+     * @param coupon 저장할 Coupon 엔티티
+     * @return 저장된 Coupon (ID 포함)
+     */
+    public Coupon createCoupon(Coupon coupon) {
+        return couponRepository.save(coupon);
+    }
+
+    public Coupon[] findAllActiveCoupons() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Coupon> all = couponRepository.findAll();
+        return all.stream()
+                .filter(c -> !now.isBefore(c.getValidFrom()) && !now.isAfter(c.getValidUntil()))
+                .toArray(Coupon[]::new);
     }
 }
