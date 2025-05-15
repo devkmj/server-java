@@ -6,15 +6,14 @@ import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -23,94 +22,84 @@ public class RedissonLockService {
     private final RedissonClient redissonClient;
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    /**
-     * 주어진 키 리스트에 대해 락을 획득한 후 task 실행.
-     *  - keys.size()==1: 단일 락
-     *  - keys.size()>1: key 이름 순으로 정렬한 후 순차 획득 (deadlock 방지)
-     */
-    public <T> T lock(List<String> keys,
-                      int waitTimeSec,
-                      int leaseTimeSec,
-                      TimeUnit timeUnit,
-                      Supplier<T> task) {
+    public <T> T lock(List<String> keys, int waitTimeSec, int leaseTimeSec, TimeUnit timeUnit, Supplier<T> task) {
+        validate(keys);
+        List<RLock> locks = prepareLocks(keys);
+        try {
+            acquireAll(locks, waitTimeSec, leaseTimeSec, timeUnit);
+            return executeWithProperRelease(locks, task);
+        } catch(InterruptedException e){
+            Thread.currentThread().interrupt();
+            logger.warn(e.getMessage(), e);
+            releaseAll(locks);
+            throw new RuntimeException(e);
+        } catch (RuntimeException ex){
+            releaseAll(locks);
+            throw ex;
+        }
+    }
+
+    private <T> T executeWithProperRelease(List<RLock> locks, Supplier<T> task) {
+        boolean txActive = TransactionSynchronizationManager.isSynchronizationActive();
+        if (txActive) {
+            registerAfterCompletion(locks);
+            return task.get();
+        }
+        try {
+            return task.get();
+        } finally {
+            releaseAll(locks);
+        }
+    }
+
+    private void registerAfterCompletion(List<RLock> locks) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                releaseAllReversed(locks);
+            }
+        });
+    }
+
+    private void releaseAllReversed(List<RLock> locks) {
+        for (int i = locks.size() - 1; i >= 0; i--) {
+            RLock lock = locks.get(i);
+            try {
+                if (lock.isHeldByCurrentThread()) {
+                    lock.unlock();
+                }
+            } catch (Exception e) {
+                logger.warn("락 해제 실패 ({}): {}", lock.getName(), e.getMessage());
+            }
+        }
+    }
+
+    private void acquireAll(List<RLock> locks,
+                           int waitTimeSec,
+                           int leaseTimeSec,
+                           TimeUnit timeUnit) throws InterruptedException {
+        for (RLock lock : locks) {
+            boolean acquired = lock.tryLock(waitTimeSec, leaseTimeSec, timeUnit);
+            if (!acquired) {
+                throw new IllegalStateException("락 획득 실패: " + lock.getName());
+            }
+        }
+    }
+
+    private List<RLock> prepareLocks(List<String> keys) {
+        if(keys.size() > 1) {
+            return keys.stream()
+                    .sorted()
+                    .map(redissonClient::getLock)
+                    .collect(Collectors.toList());
+        }
+        return Collections.singletonList(redissonClient.getLock(keys.get(0)));
+    }
+
+    private void validate(List<String> keys) {
         if (keys == null || keys.isEmpty()) {
             throw new IllegalArgumentException("락 키 목록은 비어 있을 수 없습니다.");
         }
-        if (keys.size() == 1) {
-            return singleLock(keys.get(0), waitTimeSec, leaseTimeSec, timeUnit, task);
-        } else {
-            // 이름 순 정렬
-            List<String> sortedKeys = new ArrayList<>(keys);
-            Collections.sort(sortedKeys);
-            // RLock 인스턴스 생성 및 순차 획득
-            List<RLock> acquired = new ArrayList<>();
-            try {
-                for (String key : sortedKeys) {
-                    RLock lock = redissonClient.getLock(key);
-                    boolean obtained = lock.tryLock(waitTimeSec, leaseTimeSec, timeUnit);
-                    if (!obtained) {
-                        throw new IllegalStateException("멀티락 획득 실패: " + key);
-                    }
-                    acquired.add(lock);
-                }
-                // 트랜잭션 완료 시 해제
-                registerRelease(acquired);
-                return task.get();
-
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                // 부분 해제
-                releaseAll(acquired);
-                throw new RuntimeException("락 대기 중 인터럽트 발생", e);
-            } catch (RuntimeException e) {
-                // 부분 해제
-                releaseAll(acquired);
-                throw e;
-            }
-        }
-    }
-
-    private <T> T singleLock(String key,
-                             int waitTimeSec,
-                             int leaseTimeSec,
-                             TimeUnit timeUnit,
-                             Supplier<T> task) {
-        RLock lock = redissonClient.getLock(key);
-        try {
-            boolean obtained = lock.tryLock(waitTimeSec, leaseTimeSec, timeUnit);
-            if (!obtained) {
-                throw new IllegalStateException("락 획득 실패: " + key);
-            }
-            // 트랜잭션 완료 시 해제
-            registerRelease(Collections.singletonList(lock));
-            return task.get();
-
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("락 대기 중 인터럽트 발생", e);
-        }
-    }
-
-    /**
-     * 트랜잭션 완료 후에 전달된 락들을 역순으로 해제
-     */
-    private void registerRelease(List<RLock> locks) {
-        TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronizationAdapter() {
-                    @Override
-                    public void afterCompletion(int status) {
-                        // 역순 해제
-                        ListIterator<RLock> it = locks.listIterator(locks.size());
-                        while (it.hasPrevious()) {
-                            try {
-                                it.previous().unlock();
-                            } catch (Exception ex) {
-                                logger.warn("락 해제 중 에러: {}", ex.getMessage());
-                            }
-                        }
-                    }
-                }
-        );
     }
 
     /**

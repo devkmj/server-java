@@ -15,7 +15,6 @@ import kr.hhplus.be.server.domain.product.entity.ProductStatus;
 import kr.hhplus.be.server.domain.product.entity.ProductStock;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import kr.hhplus.be.server.domain.product.repository.ProductStockRepository;
-import kr.hhplus.be.server.domain.product.service.ProductStockService;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,8 +32,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class InventoryServiceIntegrationTest {
 
-    @Autowired private PaymentFacadeService   paymentFacadeService;
-    @Autowired private ProductStockService    productStockService;
     @Autowired private OrderService           orderService;
     @Autowired private ProductRepository      productRepo;
     @Autowired private ProductStockRepository stockRepo;

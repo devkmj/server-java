@@ -34,9 +34,6 @@ public class ProductController {
         return ApiResponse.success("상품 상세 조회 성공", product);
     }
 
-    @GetMapping("/popular")
-    public ResponseEntity<ApiResponse<List<PopularProductResponse>>> getPopularProducts() {
-        return ResponseEntity.ok(ApiResponse.success("인기 상품 조회 성공", productService.getTop5PopularProducts()));
-    }
+
 
 }

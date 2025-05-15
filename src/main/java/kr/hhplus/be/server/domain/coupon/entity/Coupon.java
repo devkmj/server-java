@@ -64,6 +64,42 @@ public class Coupon extends BaseTimeEntity<Coupon> {
         this.validUntil = validUntil;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private int rate;
+        private int totalCount;
+        private int issuedCount = 0;
+        private LocalDateTime validFrom;
+        private LocalDateTime validUntil;
+
+        public Builder rate(int rate) {
+            this.rate = rate;
+            return this;
+        }
+
+        public Builder totalCount(int totalCount) {
+            this.totalCount = totalCount;
+            return this;
+        }
+
+        public Builder validFrom(LocalDateTime validFrom) {
+            this.validFrom = validFrom;
+            return this;
+        }
+
+        public Builder validUntil(LocalDateTime validUntil) {
+            this.validUntil = validUntil;
+            return this;
+        }
+
+        public Coupon build() {
+            return new Coupon(rate, totalCount, issuedCount, validFrom, validUntil);
+        }
+    }
+
     public UserCoupon issue(User user) {
         if (issuedCount >= totalCount) {
             throw new IllegalStateException("발급 가능 수량을 초과했습니다");

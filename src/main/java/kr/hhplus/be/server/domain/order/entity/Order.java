@@ -73,9 +73,6 @@ public class Order extends BaseTimeEntity<Order> {
         if (coupons != null && !coupons.isEmpty()) {
             order.userCoupons.addAll(coupons);
         }
-
-        // 도메인 이벤트 등록
-        order.registerEvent(new OrderCreatedEvent(order.getId()));
         return order;
     }
 
@@ -118,6 +115,7 @@ public class Order extends BaseTimeEntity<Order> {
     public void markAsConfirmed() {
         ensureStatus(OrderStatus.PAID);
         this.status = OrderStatus.CONFIRMED;
+        registerEvent(new OrderConfirmedEvent(this.getId()));
     }
 
     /**

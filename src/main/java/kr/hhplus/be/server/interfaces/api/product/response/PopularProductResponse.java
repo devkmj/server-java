@@ -6,14 +6,14 @@ public record PopularProductResponse(
         Long productId,
         String name,
         int price,
-        Long totalSold
+        Double score
 ) {
-    public static PopularProductResponse from(Product product, Long totalSold) {
+    public static PopularProductResponse from(Product product, Double score) {
         return new PopularProductResponse(
                 product.getId(),
                 product.getName(),
                 product.getPrice(),
-                totalSold
+                score
         );
     }
 }
