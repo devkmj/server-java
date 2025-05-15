@@ -66,8 +66,8 @@ class ProductServiceCacheTest {
     void setUp() {
         // 테스트용 더미 데이터
         fakeList = List.of(
-                new PopularProductResponse(1L, "A", 1000, 42L),
-                new PopularProductResponse(2L, "B", 2000, 36L)
+                new PopularProductResponse(1L, "A", 1000, 42.0),
+                new PopularProductResponse(2L, "B", 2000, 36.0)
         );
         // 첫 호출에만 리포지토리가 실행되고, 그 뒤부터는 캐시에서 반환되도록 설정
         given(productQueryRepository.findTop5PopularProducts())
