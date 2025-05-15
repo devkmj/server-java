@@ -6,10 +6,5 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class OrderCreatedEvent {
-
-    private final Long orderUd;
-
-    public OrderCreatedEvent(Long orderId, Long orderUd) {
-        this.orderUd = orderUd;
-    }
+    private final Long orderId;
 }

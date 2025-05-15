@@ -69,3 +69,18 @@ spring:
 
   cache:
     type: redis
+
+---
+
+ranking:
+  realtime:
+    event-keys:
+      view:    popular:realtime:view
+      order:   popular:realtime:order
+      paid:    popular:realtime:paid
+      confirm: popular:realtime:confirm
+    weights:
+      view:    0.5
+      order:   1.0
+      paid:    3.0
+      confirm: 5.0

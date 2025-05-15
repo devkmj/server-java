@@ -23,14 +23,15 @@ public class ProductQueryRepositoryImpl implements ProductQueryRepository {
                         """
                         
                                 SELECT new kr.hhplus.be.server.interfaces.api.product.response.PopularProductResponse(
-                            p.id, p.name, p.price, s.totalQty
+                              p.id, p.name, p.price, SUM(s.totalQty) * 1.0
                         )
                         FROM ProductSalesSummary s
                         JOIN Product p
                           ON p.id = s.productId
                         WHERE s.orderedAt >= :cutoff
                           AND p.status <> :deletedStatus
-                        ORDER BY s.totalQty DESC, 
+                        GROUP BY p.id, p.name, p.price
+                        ORDER BY SUM(s.totalQty) DESC,
                                  COALESCE(s.updatedAt, s.createdAt) DESC
                         """,
                         PopularProductResponse.class

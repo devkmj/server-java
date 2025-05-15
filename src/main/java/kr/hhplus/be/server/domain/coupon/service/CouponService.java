@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 public class CouponService {
 
     private final CouponRepository couponRepository;
-    private final UserCouponRepository userCouponRepository;
 
     public int applyCoupons(List<UserCoupon> coupons, int totalPrice) {
         for (UserCoupon coupon : coupons) {
@@ -37,7 +36,6 @@ public class CouponService {
 
     public UserCoupon issue(Coupon coupon, User user) {
         UserCoupon newUserCoupon = coupon.issue(user);
-        userCouponRepository.save(newUserCoupon);
         return newUserCoupon;
     }
 }
