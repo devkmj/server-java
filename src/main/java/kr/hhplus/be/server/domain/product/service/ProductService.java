@@ -1,13 +1,10 @@
 package kr.hhplus.be.server.domain.product.service;
 
-import kr.hhplus.be.server.interfaces.api.product.response.PopularProductResponse;
 import kr.hhplus.be.server.interfaces.api.product.response.ProductResponse;
 import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;
 import kr.hhplus.be.server.domain.product.entity.Product;
-import kr.hhplus.be.server.domain.product.repository.ProductQueryRepository;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,4 +33,7 @@ public class ProductService {
     }
 
 
+    public Product save(Product product) {
+        return productRepository.save(product);
+    }
 }

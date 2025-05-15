@@ -25,7 +25,7 @@ public class OrderItem extends BaseTimeEntity<OrderItem> {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
@@ -72,6 +72,9 @@ public class OrderItem extends BaseTimeEntity<OrderItem> {
 
     public void assignTo(Order order) {
         this.order = order;
+        if (!order.getOrderItems().contains(this)) {
+            order.getOrderItems().add(this);
+        }
     }
 
 }

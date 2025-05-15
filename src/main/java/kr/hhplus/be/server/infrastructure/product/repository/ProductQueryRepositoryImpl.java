@@ -23,7 +23,7 @@ public class ProductQueryRepositoryImpl implements ProductQueryRepository {
                         """
                         
                                 SELECT new kr.hhplus.be.server.interfaces.api.product.response.PopularProductResponse(
-                            p.id, p.name, p.price, s.totalQty
+                              p.id, p.name, p.price, SUM(s.totalQty) * 1.0
                         )
                         FROM ProductSalesSummary s
                         JOIN Product p
