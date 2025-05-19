@@ -4,6 +4,7 @@ import kr.hhplus.be.server.application.ranking.dto.PeriodType;
 import kr.hhplus.be.server.application.ranking.dto.RankingItem;
 import kr.hhplus.be.server.application.ranking.port.DailyRankingProvider;
 import kr.hhplus.be.server.application.ranking.port.RankingProvider;
+import kr.hhplus.be.server.application.ranking.port.WeeklyRankingRebuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.BoundZSetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -23,7 +24,7 @@ import java.util.stream.IntStream;
 
 @Repository
 @RequiredArgsConstructor
-public class WeeklyRankingRedisRepository implements RankingProvider{
+public class WeeklyRankingRedisRepository implements RankingProvider, WeeklyRankingRebuilder {
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.BASIC_ISO_DATE;
     private static final String DAILY_KEY_PREFIX = "popular:daily:";
@@ -45,7 +46,26 @@ public class WeeklyRankingRedisRepository implements RankingProvider{
         WeekFields wf = WeekFields.of(Locale.getDefault());
         int week = today.get(wf.weekOfWeekBasedYear());
         int year = today.get(wf.weekBasedYear());
-        String weeklyKey = KEY_PREFIX + year + String.format("-W%02d", week);
+        String weeklyKey = getWeeklyKey();
+
+        // 주간 키에서 Top-N 조회
+        BoundZSetOperations<String, String> bound = redis.boundZSetOps(weeklyKey);
+        Set<ZSetOperations.TypedTuple<String>> tuples = bound.reverseRangeWithScores(0, limit - 1);
+        if (tuples == null || tuples.isEmpty()) {
+            return List.of();
+        }
+        return tuples.stream()
+                .map(t -> new RankingItem(Long.valueOf(t.getValue()), t.getScore()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void rebuildThisWeek() {
+        LocalDate today = LocalDate.now();
+        WeekFields wf = WeekFields.of(Locale.getDefault());
+        int week = today.get(wf.weekOfWeekBasedYear());
+        int year = today.get(wf.weekBasedYear());
+        String weeklyKey = getWeeklyKey();
 
         // 1) 지난 7일치 daily 키 수집
         List<String> dailyKeys = IntStream.rangeClosed(1, 7)
@@ -64,15 +84,13 @@ public class WeeklyRankingRedisRepository implements RankingProvider{
 
         // TTL 설정
         redis.expire(weeklyKey, Duration.ofDays(8));  // 7일+버퍼
+    }
 
-        // 3) 주간 키에서 Top-N 조회
-        BoundZSetOperations<String, String> bound = redis.boundZSetOps(weeklyKey);
-        Set<ZSetOperations.TypedTuple<String>> tuples = bound.reverseRangeWithScores(0, limit - 1);
-        if (tuples == null || tuples.isEmpty()) {
-            return List.of();
-        }
-        return tuples.stream()
-                .map(t -> new RankingItem(Long.valueOf(t.getValue()), t.getScore()))
-                .collect(Collectors.toList());
+    private String getWeeklyKey() {
+        LocalDate today = LocalDate.now();
+        WeekFields wf = WeekFields.of(Locale.getDefault());
+        int week = today.get(wf.weekOfWeekBasedYear());
+        int year = today.get(wf.weekBasedYear());
+        return KEY_PREFIX + year + String.format("-W%02d", week);
     }
 }

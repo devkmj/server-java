@@ -31,7 +31,7 @@ public class DailyRankingRedisRepository implements RankingProvider, DailyRankin
     }
 
     /**
-     * 오늘자 일간 랭킹 ZSET에서 Top-N 아이템을 조회합니다.
+     * 일간 랭킹 ZSET에서 Top-N 아이템을 조회합니다.
      */
     @Override
     public List<RankingItem> getTop(int limit) {
