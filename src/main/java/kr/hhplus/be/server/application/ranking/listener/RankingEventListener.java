@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.application.ranking.listener;
 
+import kr.hhplus.be.server.application.ranking.dto.PeriodType;
 import kr.hhplus.be.server.application.ranking.dto.RankingEventType;
 import kr.hhplus.be.server.application.ranking.port.RankingUpdater;
 import kr.hhplus.be.server.domain.order.entity.Order;
@@ -24,24 +25,24 @@ public class RankingEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onOrderCreated(OrderCreatedEvent evt) {
         Order order = orderService.getOrder(evt.getOrderId());
-        updater.updateRealtime(order, RankingEventType.order);
+        updater.update(order, PeriodType.REALTIME, RankingEventType.order);
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onPaymentCompleted(PaymentCompletedEvent evt) {
         Order order = orderService.getOrder(evt.getOrderId());
-        updater.updateRealtime(order, RankingEventType.paid);
+        updater.update(order, PeriodType.REALTIME, RankingEventType.paid);
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onOrderConfirmed(OrderConfirmedEvent evt) {
         Order order = orderService.getOrder(evt.getOrderId());
-        updater.updateDaily(order);
-        updater.updateRealtime(order, RankingEventType.confirm);
+        updater.update(order, PeriodType.DAILY, RankingEventType.confirm);
+        updater.update(order, PeriodType.REALTIME, RankingEventType.confirm);
     }
 
     @EventListener
     public void onProductViewed(ProductViewedEvent evt) {
-        updater.updateRealtime(evt.getProductId() , RankingEventType.view);
+        updater.update(evt.getProductId(), PeriodType.REALTIME, RankingEventType.view);
     }
 }

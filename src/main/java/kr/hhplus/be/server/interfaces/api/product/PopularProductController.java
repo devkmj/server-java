@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.interfaces.api.product;
 
+import kr.hhplus.be.server.application.ranking.dto.PeriodType;
 import kr.hhplus.be.server.application.ranking.dto.RankingItem;
 import kr.hhplus.be.server.application.ranking.port.RankingQuery;
 import kr.hhplus.be.server.domain.product.entity.Product;
@@ -29,17 +30,17 @@ public class PopularProductController {
 
     @GetMapping("/daily")
     public ApiResponse<List<PopularProductResponse>> daily(@RequestParam(defaultValue="5") int limit) {
-        return ApiResponse.success("일간 인기 상품",toDto(rankingQuery.getDailyTop(limit)));
+        return ApiResponse.success("일간 인기 상품",toDto(rankingQuery.getTop(PeriodType.DAILY, limit)));
     }
 
     @GetMapping("/weekly")
     public ApiResponse<List<PopularProductResponse>> weekly(@RequestParam(defaultValue="5") int limit) {
-        return ApiResponse.success("주간 인기 상품",toDto(rankingQuery.getWeeklyTop(limit)));
+        return ApiResponse.success("주간 인기 상품", toDto(rankingQuery.getTop(PeriodType.WEEKLY, limit)));
     }
 
     @GetMapping("/realtime")
     public ApiResponse<List<PopularProductResponse>> realtime(@RequestParam(defaultValue="5") int limit) {
-        return ApiResponse.success("실시간 인기 상품",toDto(rankingQuery.getRealtimeTop(limit)));
+        return ApiResponse.success("실시간 인기 상품", toDto(rankingQuery.getTop(PeriodType.REALTIME, limit)));
     }
 
     private List<PopularProductResponse> toDto(List<RankingItem> topN) {
