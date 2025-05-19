@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.application.order;
 
-import kr.hhplus.be.server.application.ranking.port.RankingUpdater;
+import kr.hhplus.be.server.application.ranking.port.RankingUpdatePort;
 import kr.hhplus.be.server.domain.order.entity.Order;
 import kr.hhplus.be.server.domain.order.entity.OrderStatus;
 import kr.hhplus.be.server.domain.order.service.OrderService;
@@ -22,7 +22,7 @@ public class InventoryEventListener {
     private final OrderService orderService;
     private final CompensationService compensationService;
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final RankingUpdater rankingUpdater;
+    private final RankingUpdatePort rankingUpdatePort;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

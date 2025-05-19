@@ -2,19 +2,19 @@ package kr.hhplus.be.server.application.ranking.service;
 
 import kr.hhplus.be.server.application.ranking.dto.PeriodType;
 import kr.hhplus.be.server.application.ranking.dto.RankingEventType;
-import kr.hhplus.be.server.application.ranking.port.RankingUpdater;
+import kr.hhplus.be.server.application.ranking.port.DailyRankingProvider;
+import kr.hhplus.be.server.application.ranking.port.RankingUpdatePort;
+import kr.hhplus.be.server.application.ranking.port.RealtimeRankingProvider;
 import kr.hhplus.be.server.domain.order.entity.Order;
-import kr.hhplus.be.server.infrastructure.ranking.repository.DailyRankingRedisRepository;
-import kr.hhplus.be.server.infrastructure.ranking.repository.RealtimeRankingRedisRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class RankingUpdaterService implements RankingUpdater {
+public class RankingUpdatePortService implements RankingUpdatePort {
 
-    private final DailyRankingRedisRepository dailyRepo;
-    private final RealtimeRankingRedisRepository realtimeRepo;
+    private final DailyRankingProvider dailyProvider;
+    private final RealtimeRankingProvider realtimeProvider;
 
     /**
      * @param order            주문 객체(상품 목록 포함) - 랭킹 갱신 대상
@@ -25,10 +25,10 @@ public class RankingUpdaterService implements RankingUpdater {
     public void update(Order order, PeriodType period, RankingEventType rankingEventType) {
         switch (period) {
             case DAILY:
-                updateDaily(order);
+                dailyProvider.increment(order);
                 break;
             case REALTIME:
-                updateRealtime(order, rankingEventType);
+                realtimeProvider.increment(order, rankingEventType);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported period: " + period);
@@ -44,26 +44,11 @@ public class RankingUpdaterService implements RankingUpdater {
     public void update(Long productId, PeriodType period, RankingEventType rankingEventType) {
         switch (period) {
             case REALTIME:
-                updateRealtime(productId, rankingEventType);
+                realtimeProvider.increment(productId, rankingEventType);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported period: " + period);
         }
     }
-
-    private void updateDaily(Order order) {
-        dailyRepo.incrementDaily(order);
-    }
-
-    private void updateRealtime(Long productId, RankingEventType type) {
-        realtimeRepo.increment(type, productId, 1);
-    }
-
-    private void updateRealtime(Order order, RankingEventType type) {
-        order.getOrderItems().forEach(item -> {
-            realtimeRepo.increment(type, item.getProductId(), item.getQty());
-        });
-    }
-
 
 }

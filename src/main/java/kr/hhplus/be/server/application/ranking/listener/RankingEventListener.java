@@ -2,7 +2,7 @@ package kr.hhplus.be.server.application.ranking.listener;
 
 import kr.hhplus.be.server.application.ranking.dto.PeriodType;
 import kr.hhplus.be.server.application.ranking.dto.RankingEventType;
-import kr.hhplus.be.server.application.ranking.port.RankingUpdater;
+import kr.hhplus.be.server.application.ranking.port.RankingUpdatePort;
 import kr.hhplus.be.server.domain.order.entity.Order;
 import kr.hhplus.be.server.domain.order.event.OrderConfirmedEvent;
 import kr.hhplus.be.server.domain.order.event.OrderCreatedEvent;
@@ -19,7 +19,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class RankingEventListener {
 
-    private final RankingUpdater updater;
+    private final RankingUpdatePort updater;
     private final OrderService orderService;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
