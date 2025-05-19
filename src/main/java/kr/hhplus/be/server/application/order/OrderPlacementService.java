@@ -3,12 +3,14 @@ package kr.hhplus.be.server.application.order;
 import kr.hhplus.be.server.application.order.dto.OrderDto;
 import kr.hhplus.be.server.domain.order.command.OrderCommand;
 import kr.hhplus.be.server.domain.order.entity.Order;
+import kr.hhplus.be.server.domain.order.event.OrderCreatedEvent;
 import kr.hhplus.be.server.domain.order.service.OrderService;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import kr.hhplus.be.server.domain.user.service.UserCouponService;
 import kr.hhplus.be.server.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class OrderPlacementService {
     private final UserCouponService userCouponService;
     private final OrderService orderService;
     private final OrderCalculationService orderCalculationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public Order placeOrder(OrderCommand cmd){
@@ -29,14 +32,9 @@ public class OrderPlacementService {
         List<UserCoupon> userCoupons = userCouponService.retrieveCoupons(cmd.getUserCouponIds());
 
         OrderDto dto = orderCalculationService.calculateOrderItems(cmd.getItems(), userCoupons);
+        Order placeOrder = orderService.createPendingOrder(user, dto.getOrderItems(), userCoupons, dto.getTotalPrice());
+        eventPublisher.publishEvent(new OrderCreatedEvent(placeOrder.getId()));
 
-        Order order = Order.createPending(
-                user,
-                dto.getOrderItems(),
-                userCoupons,
-                dto.getTotalPrice()
-        );
-
-        return orderService.save(order);
+        return placeOrder;
     }
 }

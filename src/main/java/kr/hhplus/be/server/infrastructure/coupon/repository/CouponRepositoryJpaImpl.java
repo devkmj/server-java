@@ -4,6 +4,7 @@ import kr.hhplus.be.server.domain.coupon.entity.Coupon;
 import kr.hhplus.be.server.domain.coupon.repository.CouponRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -28,6 +29,11 @@ public class CouponRepositoryJpaImpl implements CouponRepository {
     @Override
     public void deleteAll() {
         couponJpaRepository.deleteAll();
+    }
+
+    @Override
+    public List<Coupon> findAll() {
+        return couponJpaRepository.findAll();
     }
 
 

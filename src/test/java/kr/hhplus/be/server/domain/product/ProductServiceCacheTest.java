@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.domain.product;
 
+import kr.hhplus.be.server.domain.product.service.PopularProductService;
 import kr.hhplus.be.server.interfaces.api.product.response.PopularProductResponse;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import kr.hhplus.be.server.domain.product.repository.ProductQueryRepository;
@@ -13,6 +14,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import kr.hhplus.be.server.domain.product.service.ProductService;
@@ -22,6 +24,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+@ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         ProductService.class,
@@ -52,7 +55,7 @@ class ProductServiceCacheTest {
     }
 
     @Autowired
-    private ProductService productService;
+    private PopularProductService popularProductService;
 
     @Autowired
     private ProductQueryRepository productQueryRepository;
@@ -63,8 +66,8 @@ class ProductServiceCacheTest {
     void setUp() {
         // 테스트용 더미 데이터
         fakeList = List.of(
-                new PopularProductResponse(1L, "A", 1000, 42L),
-                new PopularProductResponse(2L, "B", 2000, 36L)
+                new PopularProductResponse(1L, "A", 1000, 42.0),
+                new PopularProductResponse(2L, "B", 2000, 36.0)
         );
         // 첫 호출에만 리포지토리가 실행되고, 그 뒤부터는 캐시에서 반환되도록 설정
         given(productQueryRepository.findTop5PopularProducts())
@@ -74,11 +77,11 @@ class ProductServiceCacheTest {
     @Test
     @DisplayName("getTop5PopularProducts() 호출 시 첫 번째는 repository, 두 번째는 캐시에서 값을 가져온다")
     void 인기상품_캐시_조회_성공() {
-        List<PopularProductResponse> first = productService.getTop5PopularProducts();
+        List<PopularProductResponse> first = popularProductService.getTop5PopularProducts();
         assertThat(first).isEqualTo(fakeList);
         then(productQueryRepository).should(times(1)).findTop5PopularProducts();
 
-        List<PopularProductResponse> second = productService.getTop5PopularProducts();
+        List<PopularProductResponse> second = popularProductService.getTop5PopularProducts();
         assertThat(second).isEqualTo(fakeList);
         then(productQueryRepository).shouldHaveNoMoreInteractions();
     }

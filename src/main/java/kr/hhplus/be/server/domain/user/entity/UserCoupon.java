@@ -28,6 +28,9 @@ public class UserCoupon extends BaseTimeEntity {
     @JoinColumn(name = "coupon_id", nullable = false)
     private Coupon coupon;
 
+    @Column(name = "ticket", nullable = false)
+    private String ticket;
+
     @Column(nullable = false)
     private boolean used;
 
@@ -36,6 +39,13 @@ public class UserCoupon extends BaseTimeEntity {
     public UserCoupon(Long userId, Coupon coupon) {
         this.userId = Objects.requireNonNull(userId, "userId는 필수입니다.");
         this.coupon = Objects.requireNonNull(coupon, "coupon은 필수입니다.");
+        this.used = false;
+    }
+
+    public UserCoupon(Long userId, Coupon coupon, String ticket) {
+        this.userId = Objects.requireNonNull(userId, "userId는 필수입니다.");
+        this.coupon = Objects.requireNonNull(coupon, "coupon은 필수입니다.");
+        this.ticket = Objects.requireNonNull(ticket, "ticket은 필수입니다.");
         this.used = false;
     }
 
