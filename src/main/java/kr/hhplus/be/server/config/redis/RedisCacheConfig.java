@@ -37,7 +37,7 @@ public class RedisCacheConfig {
 
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
 
-        cacheConfigs.put("weeklyRanking", defaultConfig.entryTtl(Duration.ofDays(7)));
+        cacheConfigs.put("weeklyRanking", defaultConfig.entryTtl(Duration.ofDays(1)));
         cacheConfigs.put("dailyRanking",  defaultConfig.entryTtl(Duration.ofDays(1)));
         cacheConfigs.put("popularRealtimeTopN",  defaultConfig.entryTtl(Duration.ofMinutes(10)));
 
