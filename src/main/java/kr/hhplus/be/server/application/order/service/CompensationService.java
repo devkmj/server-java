@@ -1,11 +1,10 @@
-package kr.hhplus.be.server.application.order;
+package kr.hhplus.be.server.application.order.service;
 
 import kr.hhplus.be.server.domain.balance.service.BalanceService;
 import kr.hhplus.be.server.domain.order.entity.Order;
 import kr.hhplus.be.server.domain.order.service.OrderService;
 import kr.hhplus.be.server.domain.user.service.UserCouponService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

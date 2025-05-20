@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.application.order;
+package kr.hhplus.be.server.application.order.service;
 
 import kr.hhplus.be.server.application.order.dto.OrderDto;
 import kr.hhplus.be.server.domain.order.entity.OrderItem;

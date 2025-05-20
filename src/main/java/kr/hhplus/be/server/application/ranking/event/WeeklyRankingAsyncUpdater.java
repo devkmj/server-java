@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.application.ranking.listener;
+package kr.hhplus.be.server.application.ranking.event;
 
 import kr.hhplus.be.server.application.ranking.port.WeeklyRankingRebuilder;
 import kr.hhplus.be.server.domain.ranking.event.RankingUpdatedEvent;

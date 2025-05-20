@@ -1,13 +1,10 @@
 package kr.hhplus.be.server.domain.payment.service;
 
-import kr.hhplus.be.server.domain.order.repository.OrderRepository;
 import org.springframework.transaction.annotation.Transactional;
 import kr.hhplus.be.server.domain.balance.entity.Balance;
 import kr.hhplus.be.server.domain.order.entity.Order;
-import kr.hhplus.be.server.domain.order.event.PaymentCompletedEvent;
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

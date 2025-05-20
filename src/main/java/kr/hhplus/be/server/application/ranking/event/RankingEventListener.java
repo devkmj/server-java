@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.application.ranking.listener;
+package kr.hhplus.be.server.application.ranking.event;
 
 import kr.hhplus.be.server.application.ranking.dto.PeriodType;
 import kr.hhplus.be.server.application.ranking.dto.RankingEventType;
@@ -9,10 +9,8 @@ import kr.hhplus.be.server.domain.order.event.OrderCreatedEvent;
 import kr.hhplus.be.server.domain.order.event.PaymentCompletedEvent;
 import kr.hhplus.be.server.domain.order.service.OrderService;
 import kr.hhplus.be.server.domain.product.event.ProductViewedEvent;
-import kr.hhplus.be.server.domain.ranking.event.RankingUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;

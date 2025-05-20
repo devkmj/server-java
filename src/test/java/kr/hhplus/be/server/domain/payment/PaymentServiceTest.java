@@ -10,13 +10,11 @@ import kr.hhplus.be.server.domain.product.entity.ProductStatus;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import kr.hhplus.be.server.domain.user.service.UserService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Collections;
@@ -32,11 +30,7 @@ public class PaymentServiceTest {
     @Mock
     private UserService userService;
 
-    @Mock
-    private ApplicationEventPublisher publisher;
-
     @InjectMocks private PaymentService paymentService;
-
 
     private Order createPendingOrder(int totalPrice) {
         User mockUser = new User(1L, "테스트유저");

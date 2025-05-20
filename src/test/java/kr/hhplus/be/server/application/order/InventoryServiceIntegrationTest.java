@@ -4,7 +4,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import kr.hhplus.be.server.application.payment.PaymentFacadeService;
+
+import kr.hhplus.be.server.application.order.service.InventoryService;
 import kr.hhplus.be.server.domain.balance.entity.Balance;
 import kr.hhplus.be.server.domain.balance.repository.BalanceRepository;
 import kr.hhplus.be.server.domain.order.entity.Order;
@@ -37,7 +38,7 @@ public class InventoryServiceIntegrationTest {
     @Autowired private ProductStockRepository stockRepo;
     @Autowired private UserRepository         userRepository;
     @Autowired private BalanceRepository      balanceRepository;
-    @Autowired private InventoryService       inventoryService;
+    @Autowired private InventoryService inventoryService;
 
     private Product p1, p2;
     private User user1, user2, user3;
