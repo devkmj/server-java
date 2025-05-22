@@ -63,6 +63,7 @@ public class UserCouponService {
         return userCouponRepository.findAllByIdIn(userCouponIds);
     }
 
+    @Transactional
     public void rollbackUserCoupons(List<UserCoupon> userCoupons) {
         userCoupons.forEach(userCouponRepository::save);
     }

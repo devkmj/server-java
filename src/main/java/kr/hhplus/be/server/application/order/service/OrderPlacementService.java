@@ -30,10 +30,11 @@ public class OrderPlacementService {
     public Order placeOrder(OrderCommand cmd){
         User user = userService.findByUserId(cmd.getUserId());
         List<UserCoupon> userCoupons = userCouponService.retrieveCoupons(cmd.getUserCouponIds());
-
+        userCouponService.useUserCoupons(userCoupons);
         OrderDto dto = orderCalculationService.calculateOrderItems(cmd.getItems(), userCoupons);
         Order placeOrder = orderService.createPendingOrder(user, dto.getOrderItems(), userCoupons, dto.getTotalPrice());
-        eventPublisher.publish(new OrderCreatedEvent(placeOrder.getId()));
+
+        eventPublisher.publish(new OrderCreatedEvent(placeOrder.getId(), cmd.getProductIds()));
 
         return placeOrder;
     }
