@@ -1,7 +1,8 @@
-package kr.hhplus.be.server.interfaces.api.product;
+package kr.hhplus.be.server.interfaces.api.ranking;
 
+import kr.hhplus.be.server.application.ranking.dto.PeriodType;
 import kr.hhplus.be.server.application.ranking.dto.RankingItem;
-import kr.hhplus.be.server.application.ranking.port.RankingQuery;
+import kr.hhplus.be.server.application.ranking.port.RankingQueryPort;
 import kr.hhplus.be.server.domain.product.entity.Product;
 import kr.hhplus.be.server.domain.product.service.PopularProductService;
 import kr.hhplus.be.server.domain.product.service.ProductService;
@@ -20,7 +21,7 @@ public class PopularProductController {
 
     private final PopularProductService popularProductService;
     private final ProductService productService;
-    private final RankingQuery rankingQuery;
+    private final RankingQueryPort rankingQueryPort;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<PopularProductResponse>>> getTop5() {
@@ -29,17 +30,17 @@ public class PopularProductController {
 
     @GetMapping("/daily")
     public ApiResponse<List<PopularProductResponse>> daily(@RequestParam(defaultValue="5") int limit) {
-        return ApiResponse.success("일간 인기 상품",toDto(rankingQuery.getDailyTop(limit)));
+        return ApiResponse.success("일간 인기 상품",toDto(rankingQueryPort.getTop(PeriodType.DAILY, limit)));
     }
 
     @GetMapping("/weekly")
     public ApiResponse<List<PopularProductResponse>> weekly(@RequestParam(defaultValue="5") int limit) {
-        return ApiResponse.success("주간 인기 상품",toDto(rankingQuery.getWeeklyTop(limit)));
+        return ApiResponse.success("주간 인기 상품", toDto(rankingQueryPort.getTop(PeriodType.WEEKLY, limit)));
     }
 
     @GetMapping("/realtime")
     public ApiResponse<List<PopularProductResponse>> realtime(@RequestParam(defaultValue="5") int limit) {
-        return ApiResponse.success("실시간 인기 상품",toDto(rankingQuery.getRealtimeTop(limit)));
+        return ApiResponse.success("실시간 인기 상품", toDto(rankingQueryPort.getTop(PeriodType.REALTIME, limit)));
     }
 
     private List<PopularProductResponse> toDto(List<RankingItem> topN) {

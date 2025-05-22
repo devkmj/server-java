@@ -1,7 +1,6 @@
-package kr.hhplus.be.server.application.order;
+package kr.hhplus.be.server.application.product;
 
 import kr.hhplus.be.server.domain.order.entity.Order;
-import kr.hhplus.be.server.domain.order.entity.OrderItem;
 import kr.hhplus.be.server.domain.order.service.OrderService;
 import kr.hhplus.be.server.domain.product.service.ProductStockService;
 import kr.hhplus.be.server.lock.RedissonLockService;
@@ -55,13 +54,5 @@ public class InventoryService {
         order.getItems().forEach(item ->
                     stockService.decreaseStock(item.getProductId(), item.getQty())
         );
-    }
-
-    private List<Long> fetchDistinctSortedProductIds(Long orderId) {
-        Order order = orderService.getOrder(orderId);
-        return order.getItems().stream()
-                .map(OrderItem::getProductId)
-                .sorted()
-                .toList();
     }
 }

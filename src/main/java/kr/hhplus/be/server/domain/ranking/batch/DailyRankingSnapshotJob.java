@@ -31,7 +31,7 @@ public class DailyRankingSnapshotJob {
         snapshotRepo.deleteBySnapshotDateAndPeriodType(yesterday, "DAILY");
 
         // (2) Redis에서 Top-N 뽑아오기 (원하는 limit 갯수만큼)
-        List<RankingItem> items = dailyRepo.findTopNDaily(30);
+        List<RankingItem> items = dailyRepo.getTop(30);
 
         // (3) DB에 배치 저장
         List<RankingSnapshot> snapshots = items.stream()

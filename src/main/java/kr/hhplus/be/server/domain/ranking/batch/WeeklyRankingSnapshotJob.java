@@ -45,7 +45,7 @@ public class WeeklyRankingSnapshotJob {
         snapshotRepo.deleteBySnapshotDateAndPeriodType(snapshotDate, "WEEKLY");
 
         // (2) Redis에서 Union 기반 Top-N 조회
-        List<RankingItem> items = weeklyRepo.findTopNWeekly(100);
+        List<RankingItem> items = weeklyRepo.getTop(100);
 
         // (3) DB에 배치 저장
         List<RankingSnapshot> snapshots = items.stream()
