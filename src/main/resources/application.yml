@@ -21,6 +21,7 @@ spring:
           default_storage: NORMALIZE_UTC
         jdbc:
           time_zone: UTC
+          batch_size: 50
 
 ---
 spring:
@@ -31,4 +32,55 @@ spring:
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/hhplus?characterEncoding=UTF-8&serverTimezone=UTC
     username: application
-    password: application 
+    password: application
+
+logging:
+  level:
+    root: INFO
+    kr.hhplus.be.server: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.redisson: DEBUG
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level traceId=%X{traceId} userId=%X{userId} %logger{36} - %msg%n"
+
+---
+
+spring:
+  data:
+    redis:
+#      cluster:
+#        nodes:
+#          - 127.0.0.1:7100
+#          - 127.0.0.1:7001
+#          - 127.0.0.1:7002
+#          - 127.0.0.1:7003
+#          - 127.0.0.1:7004
+#          - 127.0.0.1:7005
+      host: localhost
+      port: 6379
+      timeout: 5000
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 10
+          min-idle: 2
+
+  cache:
+    type: redis
+
+---
+
+ranking:
+  realtime:
+    event-keys:
+      view:    popular:realtime:view
+      order:   popular:realtime:order
+      paid:    popular:realtime:paid
+      confirm: popular:realtime:confirm
+    weights:
+      view:    0.5
+      order:   1.0
+      paid:    3.0
+      confirm: 5.0

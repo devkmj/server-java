@@ -1,61 +1,50 @@
 package kr.hhplus.be.server.application.order;
 
-import kr.hhplus.be.server.domain.order.model.OrderItem;
-import kr.hhplus.be.server.domain.order.model.OrderValidator;
+import kr.hhplus.be.server.application.order.dto.OrderDto;
+import kr.hhplus.be.server.domain.order.entity.OrderItem;
 import kr.hhplus.be.server.domain.order.command.OrderItemCommand;
-import kr.hhplus.be.server.domain.product.ProductStockService;
-import kr.hhplus.be.server.domain.product.ProductService;
-import kr.hhplus.be.server.domain.balance.Balance;
-import kr.hhplus.be.server.domain.product.model.Product;
-import kr.hhplus.be.server.domain.product.model.ProductStock;
+import kr.hhplus.be.server.domain.product.service.ProductStockService;
+import kr.hhplus.be.server.domain.product.service.ProductService;
+import kr.hhplus.be.server.domain.product.entity.Product;
+import kr.hhplus.be.server.domain.product.entity.ProductStock;
+import kr.hhplus.be.server.domain.user.entity.UserCoupon;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class OrderCalculationService {
 
     private final ProductService productService;
     private final ProductStockService productStockService;
-    private final OrderValidator orderValidator;
 
-    public OrderCalculationService(
-            ProductService productService,
-            ProductStockService productStockService,
-            OrderValidator orderValidator
-    ) {
-        this.productService = productService;
-        this.productStockService = productStockService;
-        this.orderValidator = orderValidator;
+    public OrderDto calculateOrderItems(List<OrderItemCommand> cmds, List<UserCoupon> userCoupons) {
+        List<OrderItem> items = new ArrayList<>();
+        for (OrderItemCommand cmd : cmds) {
+            Product p = productService.findByProductId(cmd.getProductId());
+            ProductStock s = productStockService.findByProductId(cmd.getProductId());
+            OrderItem item = OrderItem.fromCommand(cmd, p, s);
+            items.add(item);
+        }
+        int subtotal = items.stream().mapToInt(OrderItem::getTotalPrice).sum();
+
+        int discount = calculateDiscount(subtotal, userCoupons);
+        return new OrderDto(
+                items,
+                subtotal,
+                discount,
+                subtotal - discount);
     }
 
-    /**
-     * 각 주문 아이템(Command)으로부터 OrderItem 엔티티를 생성하고 누적 총액을 계산합니다.
-     * 개별 아이템에 대한 검증 로직도 내부에서 처리합니다.
-     */
-    public OrderSummary calculateOrderItems(List<OrderItemCommand> itemCommands, Balance balance) {
-        int totalPrice = 0;
-        List<OrderItem> orderItems = new ArrayList<>();
-
-        for (OrderItemCommand cmd : itemCommands) {
-            // 각 주문 아이템에 대해 상품과 재고 조회
-            Product product = productService.findByProductId(cmd.getProductId());
-            ProductStock stock = productStockService.findByProductId(cmd.getProductId());
-            int qty = cmd.getQty();
-            int itemTotalPrice = product.getPrice() * qty;
-            totalPrice += itemTotalPrice;
-
-            // 개별 상품에 대한 기본 검증 (예: 재고 부족)
-            orderValidator.validate(product, stock, balance, null, qty, itemTotalPrice);
-
-            // 주문 아이템 엔티티 생성
-            OrderItem orderItem = new OrderItem(product, qty, product.getPrice());
-            // 인기 상품 요약 테이블 업데이트
-            productService.updateProductSalesSummary(product, qty);
-            orderItems.add(orderItem);
+    private int calculateDiscount(int subtotal, List<UserCoupon> userCoupons) {
+        int totalDiscount = 0;
+        for (UserCoupon uc : userCoupons) {
+            uc.validateUsable();
+            totalDiscount += subtotal * uc.getCoupon().getRate() / 100;
         }
-
-        return new OrderSummary(orderItems, totalPrice);
+        return Math.min(totalDiscount, subtotal);
     }
 }

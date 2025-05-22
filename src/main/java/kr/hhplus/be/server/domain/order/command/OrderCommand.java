@@ -1,9 +1,13 @@
 package kr.hhplus.be.server.domain.order.command;
 
-import kr.hhplus.be.server.api.order.OrderRequest;
+import kr.hhplus.be.server.interfaces.api.order.request.OrderRequest;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+@Getter
+@RequiredArgsConstructor
 public class OrderCommand {
 
     private Long userId;
@@ -11,13 +15,16 @@ public class OrderCommand {
     private List<Long> userCouponIds; // Optional 가능
 
     public OrderCommand(Long userId, List<OrderItemCommand> items, List<Long> userCouponIds) {
+        if(userId == null || userId < 0) {
+            throw new IllegalArgumentException("유효한 사용자 ID가 아닙니다");
+        }
+        if(items.isEmpty()) {
+            throw new IllegalArgumentException("선텍힌 싱픔이 존재하지 않습니다");
+        }
         this.userId = userId;
         this.items = items;
         this.userCouponIds = userCouponIds;
     }
-
-    public OrderCommand() {};
-
     public static OrderCommand from(OrderRequest request) {
         OrderCommand command = new OrderCommand();
         command.userId = request.getUserId();
@@ -28,19 +35,11 @@ public class OrderCommand {
         return command;
     }
 
-    public static OrderCommand of(Long userId, List<OrderItemCommand> items, int qty, List<Long> userCouponIds) {
-        return new OrderCommand(userId, items, userCouponIds);
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public List<OrderItemCommand> getItems() {
-        return items;
-    }
-
-    public List<Long> getUserCouponIds() {
-        return userCouponIds;
+    public static OrderCommand of(Long userId, List<OrderItemCommand> orderItemCommands, List<Long> userCouponIds) {
+        OrderCommand command = new OrderCommand();
+        command.userId = userId;
+        command.items = orderItemCommands;
+        command.userCouponIds = userCouponIds;
+        return command;
     }
 }

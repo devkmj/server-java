@@ -1,5 +1,10 @@
 package kr.hhplus.be.server.domain.order.command;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class OrderItemCommand {
 
     private Long orderId;
@@ -19,35 +24,4 @@ public class OrderItemCommand {
         this.qty = qty;
     }
 
-    public Long getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
-    }
-
-    public Long getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Long productId) {
-        this.productId = productId;
-    }
-
-    public int getQty() {
-        return qty;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
-    public void setQty(int qty) {
-        this.qty = qty;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
-    }
 }

@@ -1,17 +1,31 @@
-version: '3'
+version: "3.8"
+
 services:
   mysql:
     image: mysql:8.0
+    container_name: mysql-local
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: hhplus
+      MYSQL_USER: application
+      MYSQL_PASSWORD: application
     ports:
       - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_USER=application
-      - MYSQL_PASSWORD=application
-      - MYSQL_DATABASE=hhplus
     volumes:
-      - ./data/mysql/:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
+    restart: always
 
-networks:
-  default:
-    driver: bridge
+  redis:
+    image: redis:7-alpine
+    container_name: redis-local
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    restart: always
+
+volumes:
+  mysql-data:
+  redis-data:

@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.mock;
 
-import kr.hhplus.be.server.common.ApiResponse;
+import kr.hhplus.be.server.interfaces.api.common.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
