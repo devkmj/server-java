@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.application.coupon.service;
 
+import kr.hhplus.be.server.domain.coupon.event.CouponEventPublisher;
 import kr.hhplus.be.server.domain.coupon.command.IssueCouponCommand;
 import kr.hhplus.be.server.domain.coupon.entity.Coupon;
 import kr.hhplus.be.server.domain.coupon.event.CouponIssuedEvent;
@@ -7,7 +8,6 @@ import kr.hhplus.be.server.domain.coupon.service.CouponService;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +20,7 @@ public class CouponFacadeService {
     private final CouponService couponService;
     private final UserService userService;
     private final CouponAllocator couponAllocator;
-    private final ApplicationEventPublisher eventPublisher;
+    private final CouponEventPublisher eventPublisher;
 
     @Transactional
     public String issueCoupon(IssueCouponCommand command){
@@ -35,7 +35,7 @@ public class CouponFacadeService {
         // Redis 선착순 발급
         String ticket = couponAllocator.allocate(command, coupon);
 
-        eventPublisher.publishEvent(
+        eventPublisher.publish(
             new CouponIssuedEvent(command.getCouponId(),
                                    command.getUserId(),
                                    ticket)

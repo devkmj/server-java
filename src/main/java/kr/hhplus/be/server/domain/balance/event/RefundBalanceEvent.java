@@ -7,7 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RefundBalanceEvent {
-
     User user;
     int totalPrice;
 

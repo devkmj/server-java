@@ -1,22 +1,20 @@
 package kr.hhplus.be.server.domain.payment;
 
 import kr.hhplus.be.server.domain.balance.entity.Balance;
+import kr.hhplus.be.server.domain.balance.service.BalanceService;
 import kr.hhplus.be.server.domain.order.entity.Order;
 import kr.hhplus.be.server.domain.order.entity.OrderItem;
 import kr.hhplus.be.server.domain.order.entity.OrderStatus;
-import kr.hhplus.be.server.domain.payment.service.PaymentService;
 import kr.hhplus.be.server.domain.product.entity.Product;
 import kr.hhplus.be.server.domain.product.entity.ProductStatus;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import kr.hhplus.be.server.domain.user.service.UserService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Collections;
@@ -32,11 +30,7 @@ public class PaymentServiceTest {
     @Mock
     private UserService userService;
 
-    @Mock
-    private ApplicationEventPublisher publisher;
-
-    @InjectMocks private PaymentService paymentService;
-
+    @InjectMocks private BalanceService balanceService;
 
     private Order createPendingOrder(int totalPrice) {
         User mockUser = new User(1L, "테스트유저");
@@ -66,7 +60,7 @@ public class PaymentServiceTest {
         Balance balance = new Balance(order.getUser().getId(), 2_000);
 
         // when
-        paymentService.applyPayment(order, coupons, balance);
+        balanceService.applyPayment(order, balance);
 
         // then
         // 1) 각각의 쿠폰 use() 호출 검증
@@ -75,7 +69,7 @@ public class PaymentServiceTest {
         // 2) 잔액이 totalPrice 만큼 차감됐는지
         assertThat(balance.getBalance()).isEqualTo(1_000);
         // 3) 주문 상태가 PAID로 전이됐는지
-        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAID);
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.BALANCE_DEDUCTED);
     }
 
     @Test
@@ -90,7 +84,7 @@ public class PaymentServiceTest {
 
         // when & then
         assertThatThrownBy(() ->
-                paymentService.applyPayment(order, coupons, balance)
+                balanceService.applyPayment(order, balance)
         ).isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("coupon error");
 
@@ -111,7 +105,7 @@ public class PaymentServiceTest {
 
         // when & then
         assertThatThrownBy(() ->
-                paymentService.applyPayment(order, coupons, balance)
+                balanceService.applyPayment(order, balance)
         ).isInstanceOf(RuntimeException.class);  // 실제 Balance.deduct()가 던지는 예외 타입으로 교체
 
         // 상태·잔액 변경 없어야 함

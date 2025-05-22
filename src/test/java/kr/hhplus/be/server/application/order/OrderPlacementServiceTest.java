@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import kr.hhplus.be.server.application.order.dto.OrderDto;
+import kr.hhplus.be.server.application.order.service.OrderCalculationService;
+import kr.hhplus.be.server.application.order.service.OrderPlacementService;
 import kr.hhplus.be.server.domain.order.command.OrderCommand;
 
 import kr.hhplus.be.server.domain.order.command.OrderItemCommand;

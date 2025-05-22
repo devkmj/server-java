@@ -3,6 +3,8 @@ package kr.hhplus.be.server.domain.order.command;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 public class OrderItemCommand {
