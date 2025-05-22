@@ -1,12 +1,10 @@
-package kr.hhplus.be.server.application.coupon.listener;
+package kr.hhplus.be.server.interfaces.api.coupon.event;
 
 import kr.hhplus.be.server.domain.coupon.entity.Coupon;
 import kr.hhplus.be.server.domain.coupon.event.CouponIssuedEvent;
 import kr.hhplus.be.server.domain.coupon.service.CouponService;
-import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
 import kr.hhplus.be.server.domain.user.service.UserCouponService;
-import kr.hhplus.be.server.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Component;
 public class CouponIssueListener {
 
     private final CouponService couponService;
-    private final UserService userService;
     private final UserCouponService userCouponService;
 
     @Async

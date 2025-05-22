@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class CouponEventSpringPublisher implements CouponEventPublisher {
+public class CouponSpringEventPublisher implements CouponEventPublisher {
     private final CouponEventPublisher eventPublisher;
 
     @Override

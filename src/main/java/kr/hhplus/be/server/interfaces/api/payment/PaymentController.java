@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.interfaces.api.payment;
 
-import kr.hhplus.be.server.application.payment.PaymentFacadeService;
+import kr.hhplus.be.server.application.balance.PaymentFacadeService;
 import kr.hhplus.be.server.interfaces.api.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
