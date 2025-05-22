@@ -71,7 +71,7 @@ public class OrderServiceTest {
     @DisplayName("confirmOrder: 상태가 PAID인 주문을 CONFIRMED로 전이하고 저장을 호출한다")
     void confirmOrder_성공() {
         // given
-        order.markAsPaid();
+        order.markAsBalanceDeducted();
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
 
         // when

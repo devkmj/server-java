@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.application.ranking;
 
-import kr.hhplus.be.server.application.order.service.CompensationService;
-import kr.hhplus.be.server.application.order.service.InventoryService;
+import kr.hhplus.be.server.application.product.InventoryService;
 import kr.hhplus.be.server.application.ranking.dto.PeriodType;
 import kr.hhplus.be.server.application.ranking.dto.RankingEventType;
 import kr.hhplus.be.server.application.ranking.port.RankingQueryPort;
@@ -76,9 +75,6 @@ public class RealtimeRankingIntegrationTest {
 
     @MockitoBean
     private InventoryService inventoryService;
-
-    @MockitoSpyBean
-    private CompensationService compensationService;
 
     private User testUser;
     private Product p1, p2;
