@@ -1,10 +1,10 @@
 package kr.hhplus.be.server.application.ranking;
 
-import kr.hhplus.be.server.application.order.CompensationService;
-import kr.hhplus.be.server.application.order.InventoryService;
+import kr.hhplus.be.server.application.product.InventoryService;
+import kr.hhplus.be.server.application.ranking.dto.PeriodType;
 import kr.hhplus.be.server.application.ranking.dto.RankingEventType;
-import kr.hhplus.be.server.application.ranking.port.RankingQuery;
-import kr.hhplus.be.server.application.ranking.port.RankingUpdater;
+import kr.hhplus.be.server.application.ranking.port.RankingQueryPort;
+import kr.hhplus.be.server.application.ranking.port.RankingUpdatePort;
 import kr.hhplus.be.server.domain.balance.entity.Balance;
 import kr.hhplus.be.server.domain.balance.repository.BalanceRepository;
 import kr.hhplus.be.server.domain.order.entity.Order;
@@ -36,7 +36,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -70,15 +69,12 @@ public class RealtimeRankingIntegrationTest {
     @Autowired
     OrderService orderService;
     @Autowired
-    RankingUpdater rankingUpdater;
+    RankingUpdatePort rankingUpdatePort;
     @Autowired
-    RankingQuery rankingQuery;
+    RankingQueryPort rankingQueryPort;
 
     @MockitoBean
     private InventoryService inventoryService;
-
-    @MockitoSpyBean
-    private CompensationService compensationService;
 
     private User testUser;
     private Product p1, p2;
@@ -161,7 +157,7 @@ public class RealtimeRankingIntegrationTest {
     @DisplayName("상품 조회 이벤트 발생 시 실시간 랭킹이 반영된다")
     void testProductViewedEventUpdatesRanking() throws Exception {
         // when
-        rankingUpdater.updateRealtime(p1.getId(), RankingEventType.view);
+        rankingUpdatePort.update(p1.getId(), PeriodType.REALTIME, RankingEventType.view);
 
         // then: 최근 0, 10분 내 키에서 점수 확인
         int totalScore = 0;
@@ -183,7 +179,7 @@ public class RealtimeRankingIntegrationTest {
         double viewWeight = 0.5; // application.yml 기준
 
         // when
-        rankingUpdater.updateRealtime(p1.getId(), RankingEventType.view);
+        rankingUpdatePort.update(p1.getId(), PeriodType.REALTIME, RankingEventType.view);
 
         // then: ZSET엔 1로 적재
         double actualScore = 0;
@@ -194,7 +190,7 @@ public class RealtimeRankingIntegrationTest {
         assertThat(actualScore).isEqualTo(1.0);
 
         // 집계 로직 통해서 조회하면 0.5
-        double weightedScore = rankingQuery.getRealtimeTop(1).get(0).getScore();
+        double weightedScore = rankingQueryPort.getTop(PeriodType.REALTIME,1).get(0).getScore();
         assertThat(weightedScore).isEqualTo(viewWeight);
     }
 

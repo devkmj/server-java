@@ -47,7 +47,7 @@ public class OrderService {
     public void markAsPaid(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(()-> new IllegalArgumentException("잘못된 접근입니다."));
-        order.markAsPaid();
+        order.markAsBalanceDeducted();
         orderRepository.save(order);
     }
 

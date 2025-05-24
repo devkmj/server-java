@@ -1,16 +1,10 @@
 package kr.hhplus.be.server.domain.order.entity;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.domain.order.event.OrderConfirmedEvent;
-import kr.hhplus.be.server.domain.order.event.OrderFailedEvent;
-import kr.hhplus.be.server.domain.order.event.PaymentCompletedEvent;
-import kr.hhplus.be.server.domain.order.event.OrderCreatedEvent;
 import kr.hhplus.be.server.domain.common.entity.BaseTimeEntity;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.entity.UserCoupon;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.List;
@@ -95,37 +89,24 @@ public class Order extends BaseTimeEntity<Order> {
             throw new IllegalArgumentException("해당 쿠폰은 사용자 소유가 아닙니다.");
         }
     }
-
-    /**
-     * 결제 성공 시 상태 전이 및 이벤트 등록
-     */
-    public void markAsPaid() {
+    public void markAsBalanceDeducted(){
         ensureStatus(OrderStatus.PENDING);
-        this.status = OrderStatus.PAID;
-        List<Long> productIds = items.stream()
-                                    .map(OrderItem::getProductId)
-                                    .sorted()
-                                    .toList();
-        registerEvent(new PaymentCompletedEvent(this.getId(), productIds));
+        this.status = OrderStatus.BALANCE_DEDUCTED;
     }
 
-    /**
-     * 재고 차감 성공 시 상태 전이 및 이벤트 등록
-     */
+    public void markAsBalanceFailed(){
+        ensureStatus(OrderStatus.PENDING);
+        this.status = OrderStatus.BALANCE_FAILED;
+    }
+
+    public void markAsInventoryFailed(){
+        ensureStatus(OrderStatus.BALANCE_DEDUCTED);
+        this.status = OrderStatus.INVENTORY_FAILED;
+    }
+
     public void markAsConfirmed() {
-        ensureStatus(OrderStatus.PAID);
+        ensureStatus(OrderStatus.BALANCE_DEDUCTED);
         this.status = OrderStatus.CONFIRMED;
-        registerEvent(new OrderConfirmedEvent(this.getId()));
-    }
-
-    /**
-     * 실패 시 상태 전이 및 이벤트 등록
-     */
-    public void markAsFailed(String reason) {
-        if (this.status == OrderStatus.CONFIRMED) {
-            throw new IllegalStateException("이미 완료된 주문입니다: " + this.status);
-        }
-        this.status = OrderStatus.FAILED;
     }
 
     /**

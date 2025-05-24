@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @RequiredArgsConstructor
@@ -41,5 +42,10 @@ public class OrderCommand {
         command.items = orderItemCommands;
         command.userCouponIds = userCouponIds;
         return command;
+    }
+
+
+    public List<Long> getProductIds(){
+        return this.items.stream().map(OrderItemCommand::getProductId).collect(Collectors.toList());
     }
 }
