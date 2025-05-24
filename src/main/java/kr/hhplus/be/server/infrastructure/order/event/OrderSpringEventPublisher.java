@@ -23,9 +23,4 @@ public class OrderSpringEventPublisher implements OrderEventPublisher {
     public void publish(OrderConfirmedEvent orderConfirmedEvent) {
         eventPublisher.publish(orderConfirmedEvent);
     }
-
-    @Override
-    public void publish(OrderInventoryFailedEvent orderInventoryFailedEvent) {
-        eventPublisher.publish(orderInventoryFailedEvent);
-    }
 }
