@@ -6,13 +6,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class OrderFailedEvent {
-
     private Long orderId;
-    private String reason;
 
-    public OrderFailedEvent(Long orderId, String reason) {
+    public OrderFailedEvent(Long orderId) {
         this.orderId = orderId;
-        this.reason = reason;
     }
-
 }

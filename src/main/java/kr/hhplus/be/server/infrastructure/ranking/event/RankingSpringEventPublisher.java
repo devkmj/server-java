@@ -1,18 +1,15 @@
 package kr.hhplus.be.server.infrastructure.ranking.event;
 
 import kr.hhplus.be.server.domain.ranking.event.RankingEventPublisher;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 @Primary
-public class RankingEventSpringPublisher implements RankingEventPublisher {
+public class RankingSpringEventPublisher implements RankingEventPublisher {
     private final RankingEventPublisher eventPublisher;
-
-    public RankingEventSpringPublisher(RankingEventPublisher eventPublisher) {
-        this.eventPublisher = eventPublisher;
-    }
-
 
     @Override
     public void publish(Object event) {
