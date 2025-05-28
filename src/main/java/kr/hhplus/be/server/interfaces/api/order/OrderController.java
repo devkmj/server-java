@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.interfaces.api.order;
 
 import jakarta.validation.Valid;
-import kr.hhplus.be.server.application.order.OrderPlacementService;
+import kr.hhplus.be.server.application.order.service.OrderPlacementService;
 import kr.hhplus.be.server.domain.order.entity.Order;
 import kr.hhplus.be.server.domain.order.service.OrderService;
 import kr.hhplus.be.server.interfaces.api.order.request.OrderRequest;

@@ -1,8 +1,6 @@
 package kr.hhplus.be.server.application.ranking;
 
-
-import kr.hhplus.be.server.application.order.CompensationService;
-import kr.hhplus.be.server.application.order.InventoryService;
+import kr.hhplus.be.server.application.product.InventoryService;
 import kr.hhplus.be.server.domain.balance.entity.Balance;
 import kr.hhplus.be.server.domain.balance.repository.BalanceRepository;
 import kr.hhplus.be.server.domain.order.repository.OrderRepository;
@@ -62,9 +60,6 @@ public class WeeklyRankingIntegrationTest {
 
     @MockitoBean
     private InventoryService inventoryService;
-
-    @MockitoSpyBean
-    private CompensationService compensationService;
 
     private User testUser;
     private Product p1, p2;
