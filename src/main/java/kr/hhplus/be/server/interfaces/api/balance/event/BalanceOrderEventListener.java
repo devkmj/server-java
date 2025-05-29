@@ -23,7 +23,6 @@ public class BalanceOrderEventListener {
     private final BalanceService balanceService;
     private final BalanceEventPublisher balanceEventPublisher;
 
-    @Transactional
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onOrderCreated(OrderCreatedEvent evt) {
         Order order = orderService.getOrder(evt.getOrderId());
