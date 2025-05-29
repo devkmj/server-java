@@ -18,6 +18,7 @@ public class RestDataPlatformClient {
     }
 
     public void sendOrderConfirmed(Long orderId) {
+        System.out.println("sendOrderConfirmed " + orderId);
         client.post()
                 .uri("/orders/confirmed")
                 .bodyValue(Map.of("orderId", orderId))

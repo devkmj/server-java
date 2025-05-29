@@ -17,7 +17,6 @@ public class BalanceCompensationListener {
     private final OrderService orderService;
     private final BalanceService balanceService;
 
-    @Transactional
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onOrderInventoryFailed(InventoryFailedEvent evt) {
         Order order = orderService.getOrder(evt.getOrderId());

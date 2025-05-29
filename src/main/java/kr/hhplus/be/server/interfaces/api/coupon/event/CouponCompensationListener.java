@@ -19,7 +19,6 @@ public class CouponCompensationListener {
     private final UserCouponService couponService;
 
     // 주문 잔액 차감 실패 시 보상처리
-    @Transactional
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onOrderBalanceFailed(BalanceDeductFailedEvent evt){
         Order order = orderService.getOrder(evt.getOrderId());
@@ -27,7 +26,6 @@ public class CouponCompensationListener {
     }
 
     // 주문 재고 차감 실패 시 보상처리
-    @Transactional
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onOrderInventoryFailed(InventoryFailedEvent evt) {
         Order order = orderService.getOrder(evt.getOrderId());

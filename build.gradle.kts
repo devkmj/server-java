@@ -26,6 +26,7 @@ repositories {
 dependencyManagement {
 	imports {
 		mavenBom("org.springframework.cloud:spring-cloud-dependencies:2024.0.0")
+		mavenBom("org.junit:junit-bom:5.9.2")
 	}
 }
 
@@ -65,6 +66,17 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-cache")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
+
+	// KafkaContainer 클래스가 들어있는 모듈
+	implementation("org.springframework.kafka:spring-kafka")
+	testImplementation("org.testcontainers:kafka")
+	testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+	testImplementation("org.apache.kafka:kafka-clients:3.8.0")
+	implementation("org.springframework:spring-tx")
+	testImplementation("org.springframework.kafka:spring-kafka-test")
+	testImplementation("org.apache.kafka:kafka-clients:3.5.1")
+	testImplementation("org.apache.kafka:kafka_2.13:3.5.1")
+	testImplementation("org.awaitility:awaitility:4.2.0")
 }
 
 tasks.withType<Test> {

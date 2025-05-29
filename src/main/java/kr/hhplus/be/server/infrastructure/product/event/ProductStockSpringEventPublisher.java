@@ -4,20 +4,24 @@ import kr.hhplus.be.server.domain.product.event.InventoryFailedEvent;
 import kr.hhplus.be.server.domain.product.event.ProductStockDecreasedEvent;
 import kr.hhplus.be.server.domain.product.event.ProductStockEventPublisher;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class ProductStockSpringEventPublisher implements ProductStockEventPublisher {
-    private final ProductStockSpringEventPublisher eventPublisher;
+    private final ApplicationEventPublisher applicationEventPublisher;
+
+    public ProductStockSpringEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
+    }
 
     @Override
     public void publish(ProductStockDecreasedEvent productStockDecreasedEvent) {
-        eventPublisher.publish(productStockDecreasedEvent);
+        applicationEventPublisher.publishEvent(productStockDecreasedEvent);
     }
 
     @Override
     public void publish(InventoryFailedEvent inventoryFailedEvent) {
-        eventPublisher.publish(inventoryFailedEvent);
+        applicationEventPublisher.publishEvent(inventoryFailedEvent);
     }
 }
