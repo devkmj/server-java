@@ -21,7 +21,6 @@ public class OrderEventListener {
     private final OrderService orderService;
 
     // 결제 완료
-    @Transactional
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onBalanceDeducted(BalanceDeductedEvent evt) {
         Order order = orderService.getOrder(evt.getOrderId());
@@ -29,7 +28,6 @@ public class OrderEventListener {
     }
 
     // 결제 실패
-    @Transactional
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onBalanceDeductFailed(BalanceDeductFailedEvent evt) {
         Order order = orderService.getOrder(evt.getOrderId());
@@ -37,7 +35,6 @@ public class OrderEventListener {
     }
 
     // 재고 차감 성공
-    @Transactional
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onProductStockDecreased(ProductStockDecreasedEvent evt){
         Order order = orderService.getOrder(evt.getOrderId());
@@ -46,7 +43,6 @@ public class OrderEventListener {
     }
 
     // 재고 차감 실패
-    @Transactional
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onInventoryFailed(InventoryFailedEvent evt){
         Order order = orderService.getOrder(evt.getOrderId());
