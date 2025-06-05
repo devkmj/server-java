@@ -28,7 +28,7 @@ public class DataPlatformKafkaEventPublisher implements DataPlatformEventPublish
             MDC.put("traceId", traceId);
         }
 
-        log.info("[EVENT_PUBLISH] traceId={}, eventType={}, aggregateId={}, payload={}",
+        log.info("[EVENT_PUBLISH DataPlatformKafkaEventPublisher] traceId={}, eventType={}, aggregateId={}, payload={}",
                 traceId, event.getClass().getSimpleName(), event.getOrderId(), event);
 
         Message<OrderConfirmedEvent> message = MessageBuilder.withPayload(event)

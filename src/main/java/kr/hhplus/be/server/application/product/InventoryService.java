@@ -36,12 +36,15 @@ public class InventoryService {
                 .toList();
         logger.info("MultiLock key {}", keys);
 
+        long start = System.currentTimeMillis();
         redissonLockService.lock(
                 keys,
                 (int) LOCK_WAIT_SECONDS,
                 (int) LOCK_LEASE_SECONDS,
                 TimeUnit.SECONDS,
                 () -> {
+                    long lockedAt = System.currentTimeMillis();
+                    logger.info("Acquired lock in {} ms", (lockedAt - start));
                     doDecreaseStockInNewTx(orderId);
                     return null;
                 }

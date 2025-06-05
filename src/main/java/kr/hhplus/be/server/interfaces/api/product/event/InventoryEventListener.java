@@ -9,6 +9,7 @@ import kr.hhplus.be.server.domain.product.event.InventoryFailedEvent;
 import kr.hhplus.be.server.domain.product.event.ProductStockDecreasedEvent;
 import kr.hhplus.be.server.domain.product.event.ProductStockEventPublisher;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class InventoryEventListener {
@@ -29,6 +31,7 @@ public class InventoryEventListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onPaymentCompleted(BalanceDeductedEvent evt) {
+        log.info("onPaymentCompleted: {}", evt.getOrderId(), evt);
         Long orderId = evt.getOrderId();
         Order order = orderService.getOrder(orderId);
         if (order.getStatus() != OrderStatus.BALANCE_DEDUCTED) {
@@ -39,6 +42,7 @@ public class InventoryEventListener {
             inventoryService.decreaseStockWithDistributedLock(evt.getOrderId(), evt.getProductIds());
             productStockEventPublisher.publish(new ProductStockDecreasedEvent(evt.getOrderId(), evt.getProductIds()));
         } catch (Exception ex) {
+            log.error("재고 차감 이벤트 실패: {}", evt.getOrderId(), ex);
             // 실패 시 보상 로직 실행
             productStockEventPublisher.publish(new InventoryFailedEvent(evt.getOrderId(), evt.getProductIds()));
         }
