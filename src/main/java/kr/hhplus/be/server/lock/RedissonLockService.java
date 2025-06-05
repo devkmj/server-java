@@ -78,9 +78,13 @@ public class RedissonLockService {
                            int waitTimeSec,
                            int leaseTimeSec,
                            TimeUnit timeUnit) throws InterruptedException {
+        List<RLock> acquired = new java.util.ArrayList<>();
         for (RLock lock : locks) {
-            boolean acquired = lock.tryLock(waitTimeSec, leaseTimeSec, timeUnit);
-            if (!acquired) {
+            if (lock.tryLock(waitTimeSec, leaseTimeSec, timeUnit)) {
+                acquired.add(lock);
+            } else {
+                // 이미 획득한 락들 해제
+                releaseAll(acquired);
                 throw new IllegalStateException("락 획득 실패: " + lock.getName());
             }
         }
