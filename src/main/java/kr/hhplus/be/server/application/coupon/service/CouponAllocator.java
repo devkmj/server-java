@@ -3,6 +3,7 @@ package kr.hhplus.be.server.application.coupon.service;
 import kr.hhplus.be.server.domain.coupon.command.IssueCouponCommand;
 import kr.hhplus.be.server.domain.coupon.entity.Coupon;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RAtomicLong;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RSet;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CouponAllocator {
@@ -26,6 +28,10 @@ public class CouponAllocator {
         if (!issuedUsers.add(userKey)) {
             throw new IllegalStateException("이미 발급된 쿠폰입니다.");
         }
+
+        log.info("userKey = {}", userKey);
+        log.info("issuedUsers.add(userKey) = {}", issuedUsers.add(userKey));
+        log.info("issuedUsers size = {}", issuedUsers.size());
 
         // 재고 차감 (DECR)
         RAtomicLong stockCounter = redissonClient.getAtomicLong("coupon:" + couponKey + ":count");

@@ -27,10 +27,9 @@ public class OrderController {
             @Valid @RequestBody OrderRequest request
     ) {
         Order order = placementService.placeOrder(OrderCommand.from(request));
-        URI location = URI.create("/orders/" + order.getId());
+        //URI location = URI.create("/orders/" + order.getId());
         return ResponseEntity
-                .created(location)
-                .body(ApiResponse.success("주문 생성 완료", OrderResponse.from(order)));
+                .ok(ApiResponse.success("주문 생성 완료", OrderResponse.from(order)));
     }
 
     @GetMapping("/{orderId}")
