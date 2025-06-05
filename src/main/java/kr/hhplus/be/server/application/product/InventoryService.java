@@ -5,6 +5,7 @@ import kr.hhplus.be.server.domain.order.service.OrderService;
 import kr.hhplus.be.server.domain.product.service.ProductStockService;
 import kr.hhplus.be.server.lock.RedissonLockService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InventoryService {
@@ -30,11 +32,11 @@ public class InventoryService {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void decreaseStockWithDistributedLock(Long orderId, List<Long> productIds) {
-        logger.info("order Id = " + orderId);
+        log.info("order Id = " + orderId);
         List<String> keys = productIds.stream()
                 .map(id -> "lock:product:" + id)
                 .toList();
-        logger.info("MultiLock key {}", keys);
+        log.info("MultiLock key {}", keys);
 
         long start = System.currentTimeMillis();
         redissonLockService.lock(
@@ -44,7 +46,7 @@ public class InventoryService {
                 TimeUnit.SECONDS,
                 () -> {
                     long lockedAt = System.currentTimeMillis();
-                    logger.info("Acquired lock in {} ms", (lockedAt - start));
+                    log.info("Acquired lock in {} ms", (lockedAt - start));
                     doDecreaseStockInNewTx(orderId);
                     return null;
                 }
@@ -53,7 +55,7 @@ public class InventoryService {
 
     protected void doDecreaseStockInNewTx(Long orderId) {
         Order order = orderService.getOrder(orderId);
-        logger.info("order Status = " + order.getStatus());
+        log.info("[decreaseStockInternal] orderStatus ={}" + order.getStatus());
         order.getItems().forEach(item ->
                     stockService.decreaseStock(item.getProductId(), item.getQty())
         );
