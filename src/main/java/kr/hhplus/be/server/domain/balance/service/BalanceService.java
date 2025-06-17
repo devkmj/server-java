@@ -38,6 +38,7 @@ public class BalanceService {
         return BalanceResponse.from(balance);
     }
 
+    @Transactional(readOnly = true)
     public Balance findByUserId(Long userId) {
         return balanceRepository.findByUserId(userId)
                 .orElseThrow(() -> new BalanceNotFoundException("존재하지 않는 사용자입니다"));

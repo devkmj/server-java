@@ -43,6 +43,7 @@ public class UserCouponService {
         });
     }
 
+    @Transactional
     public List<UserCoupon> retrieveCoupons(List<Long> userCouponIds) {
         if (userCouponIds == null) {
             return Collections.emptyList();

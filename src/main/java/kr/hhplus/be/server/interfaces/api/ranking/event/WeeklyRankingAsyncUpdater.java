@@ -14,9 +14,9 @@ public class WeeklyRankingAsyncUpdater {
     private final WeeklyRankingRebuilder weeklyRankingRebuilder;
 
     @Async
-    @EventListener(condition = "#event.period == PeriodType.DAILY")
+    @EventListener(condition = "#event.period == T(kr.hhplus.be.server.application.ranking.dto.PeriodType).DAILY")
     public void rebuildWeekly(RankingUpdatedEvent event) {
         weeklyRankingRebuilder.rebuildThisWeek();
     }
-    
+
 }

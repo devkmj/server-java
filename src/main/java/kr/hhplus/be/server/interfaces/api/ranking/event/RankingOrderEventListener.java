@@ -11,6 +11,7 @@ import kr.hhplus.be.server.domain.order.service.OrderService;
 import kr.hhplus.be.server.domain.product.event.ProductViewedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -22,18 +23,21 @@ public class RankingOrderEventListener {
     private final RankingUpdatePort updater;
     private final OrderService orderService;
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onOrderCreated(OrderCreatedEvent evt) {
         Order order = orderService.getOrder(evt.getOrderId());
         updater.update(order, PeriodType.REALTIME, RankingEventType.order);
     }
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onPaymentCompleted(BalanceDeductedEvent evt) {
         Order order = orderService.getOrder(evt.getOrderId());
         updater.update(order, PeriodType.REALTIME, RankingEventType.paid);
     }
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onOrderConfirmed(OrderConfirmedEvent evt) {
         Order order = orderService.getOrder(evt.getOrderId());

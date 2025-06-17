@@ -30,6 +30,7 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    @Transactional(readOnly = true)
     public Order getOrder(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(()-> new IllegalArgumentException("잘못된 접근입니다."));
